@@ -1,0 +1,366 @@
+﻿@using PureSmileUI.App_Start
+@model PureSmileUI.Models.Dto.BookingViewItem
+
+@{
+    ViewBag.Title = "Payment";
+    Layout = User.Identity.IsAuthenticated ? "~/Views/Shared/_Layout.cshtml" : "~/Views/Shared/_LayoutNotAuthorized.cshtml";
+}
+
+@section head
+{
+  <style type="text/css">
+    .panel {
+      width: 80%;
+      margin: 2em auto;
+    }
+
+    .bootstrap-basic {
+      background: white;
+    }
+
+    .panel-body {
+      width: 90%;
+      margin: 2em auto;
+    }
+
+    .helper-text {
+      color: #8A6D3B;
+      font-size: 12px;
+      margin-top: 5px;
+      height: 12px;
+      display: block;
+    }
+
+    /* Braintree Hosted Fields styling classes*/
+    .braintree-hosted-fields-focused {
+      border: 1px solid #0275d8;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+    }
+
+    .braintree-hosted-fields-focused.focused-invalid {
+      border: 1px solid #ebcccc;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(100, 100, 0, .6);
+    }
+
+    table tr td:first-child { text-align: right;}
+  </style>
+  <script src="https://js.braintreegateway.com/web/3.3.0/js/client.min.js"></script>
+  <script src="https://js.braintreegateway.com/web/3.3.0/js/paypal.min.js"></script>
+  <script src="https://js.braintreegateway.com/web/3.3.0/js/hosted-fields.js"></script>
+  <script>
+    var AUTH_TOKEN = '@(ViewBag.ClientToken != null ? ViewBag.ClientToken : "")';
+    $(document).ready(function() {
+      // Fetch the button you are using to initiate the PayPal flow
+      var paypalButton = document.getElementById('paypal-button');
+      // Create a Client component
+      braintree.client.create({
+        authorization: AUTH_TOKEN
+      }, function(clientErr, clientInstance) {
+        if (clientErr != null) {
+          ErrorLogger.LogError(clientErr);
+        }
+        braintree.paypal.create({
+          client: clientInstance
+        }, function(err, paypalInstance) {
+          if (err != null) {
+            ErrorLogger.LogError(err);
+          }
+          paypalButton.addEventListener('click', function() {
+            paypalInstance.tokenize({
+              flow: 'checkout', // Required
+              amount: @Model.PaymentAmount.ToJsString(), // Required
+              currency: 'USD', // Required
+              locale: 'en_US',
+              enableShippingAddress: false
+            }, function(err, tokenizationPayload) {
+              if (err != null) {
+                $("#dlgModal .modal-title").text("Error occured");
+                $("#dlgModal .modal-body p").text(err);
+                ErrorLogger.LogError(err);
+                return;
+              } else {
+                var json = JSON.stringify(tokenizationPayload);
+                $("#hdnPayload").val(json);
+                $("#bookingStepForm").submit();
+              }
+            });
+          });
+        });
+      });
+    });
+
+    var cardInitialized = false;
+
+    function CreditCardDialog() {
+      $("#dlgCreditCardModal").dialog({
+        open: function(event, ui) {
+          // Init Credit Card fields
+          if (cardInitialized) {
+            return;
+          }
+          cardInitialized = true;
+
+          braintree.client.create({
+            authorization: AUTH_TOKEN
+          }, function(err, clientInstance) {
+            if (err) {
+              ErrorLogger.LogError(err);
+              return;
+            }
+
+            braintree.hostedFields.create({
+              client: clientInstance,
+              styles: {
+                'input': {
+                  'font-size': '14px',
+                  'font-family': 'helvetica, tahoma, calibri, sans-serif',
+                  'color': '#3a3a3a'
+                },
+                ':focus': {
+                  'color': 'black'
+                }
+              },
+              fields: {
+                number: {
+                  selector: '#card-number',
+                  placeholder: '4111 1111 1111 1111'
+                },
+                cvv: {
+                  selector: '#cvv',
+                  placeholder: '123'
+                },
+                expirationMonth: {
+                  selector: '#expiration-month',
+                  placeholder: 'MM'
+                },
+                expirationYear: {
+                  selector: '#expiration-year',
+                  placeholder: 'YY'
+                }
+              }
+            }, function(err, hostedFieldsInstance) {
+              if (err) {
+                ErrorLogger.LogError(err);
+                return;
+              }
+
+              hostedFieldsInstance.on('validityChange', function(event) {
+                var field = event.fields[event.emittedBy];
+
+                if (field.isValid) {
+                  if (event.emittedBy === 'expirationMonth' || event.emittedBy === 'expirationYear') {
+                    if (!event.fields.expirationMonth.isValid || !event.fields.expirationYear.isValid) {
+                      return;
+                    }
+                  } else if (event.emittedBy === 'number') {
+                    $('#card-number').next('span').text('');
+                  }
+
+                  // Apply styling for a valid field
+                  $(field.container).parents('.form-group').addClass('has-success');
+                } else if (field.isPotentiallyValid) {
+                  // Remove styling  from potentially valid fields
+                  $(field.container).parents('.form-group').removeClass('has-warning');
+                  $(field.container).parents('.form-group').removeClass('has-success');
+                  if (event.emittedBy === 'number') {
+                    $('#card-number').next('span').text('');
+                  }
+                } else {
+                  // Add styling to invalid fields
+                  $(field.container).parents('.form-group').addClass('has-warning');
+                  // Add helper text for an invalid card number
+                  if (event.emittedBy === 'number') {
+                    $('#card-number').next('span').text('Looks like this card number has an error.');
+                  }
+                }
+              });
+
+              hostedFieldsInstance.on('cardTypeChange', function(event) {
+                // Handle a field's change, such as a change in validity or credit card type
+                if (event.cards.length === 1) {
+                  $('#card-type').text(event.cards[0].niceType);
+                } else {
+                  $('#card-type').text('Card');
+                }
+              });
+
+              $('#cardForm #btnSubmit').bind("click", function(event) {
+                event.preventDefault();
+                hostedFieldsInstance.tokenize(function(err, payload) {
+                  if (err) {
+                    ErrorLogger.LogError(err);
+                    return;
+                  }
+                  var json = JSON.stringify(payload);
+                  $("#hdnCardPayload").val(json);
+                  $('#cardForm').submit();
+                });
+              });
+            });
+          });
+        },
+        title: "SSL SECURE PAYMENT",
+        modal: true,
+        closeOnEscape: true,
+        position: {
+          my: "center",
+          at: "center",
+          of: ".matter"
+        }
+      });
+    }
+
+    function ShowError(text) {
+      $("#dlgErrorModal").text(text);
+      $("#dlgErrorModal").dialog(
+        {
+          title: "Error",
+          modal: true,
+          closeOnEscape: true,
+          position: {
+            my: "center",
+            at: "center",
+            of: ".matter"
+          }
+        }
+      );
+    }
+  </script>
+}
+
+<div class="page-head">
+  <h2 class="pull-left">Payment details</h2>
+  <div class="clearfix"></div>
+</div>
+<div class="matter">
+  @using (Html.BeginForm("BookingFinish", "Booking", new {id = Model.Id}, FormMethod.Post, htmlAttributes: new {Id = "bookingStepForm"}))
+  {
+    @Html.AntiForgeryToken()
+    <div class="row" style="margin: 0;">
+      @if (ViewBag.ResultText != null)
+      {
+        <div class="alert alert-@(ViewBag.IsSuccess != null ? ((bool) ViewBag.IsSuccess ? "success" : "danger") : "")">
+          @(ViewBag.ResultText != null ? ViewBag.ResultText.ToString() : "")
+        </div>
+      }
+      @if (TempData["NotAuthorizedButFound"] != null && ((bool) TempData["NotAuthorizedButFound"]) == true)
+      {
+        <div class="alert alert-info">
+          User with this email already exists. We've sent notification to your email address.
+        </div>
+      }
+      <div class="col-md-offset-4 col-md-4">
+        <div class="widget">
+          <div class="widget-content">
+            <table class="table table-striped">
+              <tr>
+                <td>@Html.LabelFor(model => model.TreatmentName)</td>
+                <td>@Html.DisplayFor(m => m.TreatmentName)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.FirstName)</td>
+                <td>@Html.DisplayFor(model => model.FirstName)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.LastName)</td>
+                <td>@Html.DisplayFor(model => model.LastName)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.ClientEmail)</td>
+                <td>@Html.DisplayFor(model => model.ClientEmail)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.ClientPhone)</td>
+                <td>@Html.DisplayFor(model => model.ClientPhone)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.ClinicName)</td>
+                <td>@Html.DisplayFor(m => m.ClinicName)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.BookDate)</td>
+                <td>@Html.DisplayFor(m => m.BookDate)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.BookTime)</td>
+                <td>@Html.DisplayFor(m => m.BookTime)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.Comments)</td>
+                <td>@Html.DisplayFor(model => model.Comments)</td>
+              </tr>
+              <tr>
+                <td>@Html.LabelFor(model => model.PaymentAmount)</td>
+                <td>$@Html.DisplayFor(model => model.PaymentAmount)</td>
+              </tr>
+              @if (Model.IsPaid)
+              {
+                <tr class="success ui-state-hover">
+                  <td colspan="2" style="text-align: center;">
+                    <span>Status: Paid</span>
+                  </td>
+                </tr>
+              }
+              <tr>
+                <td colspan="2" style="text-align: center;">
+                  @Html.ActionLink("Back", "Edit", new {id = Model.Id}, new {@class = "btn btn-default btn-sm"})
+                  <span></span>
+                  @if (!Model.IsPaid)
+                  {
+                    <text>
+                      <a class="btn btn-info btn-sm" href="#" id="paypal-button">Paypal</a>
+                      or
+                      <a class="btn btn-info btn-sm" href="#" onclick="CreditCardDialog();"> Credit card </a>
+                    </text>
+                  }
+                  <input id="hdnPayload" name="payload" type="hidden"/>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div id="dlgCreditCardModal" style="display: none;">
+  @using (Html.BeginForm("BookingFinish", "Booking", new {id = Model.Id, isCard = true}, FormMethod.Post, htmlAttributes: new {Id = "cardForm"}))
+  {
+    <!-- Bootstrap inspired Braintree Hosted Fields example -->
+    <div style="width: 260px;">
+      <div class="row">
+        <div class="form-group col-xs-11">
+          <label class="control-label">Card Number</label>
+          <!-- Hosted Fields div container -->
+          <div class="form-control" id="card-number"></div>
+          <span class="helper-text"></span>
+        </div>
+      </div>
+      <div class="row">
+        <label class="control-label col-xs-11">Expiration Date</label>
+        <div class="col-xs-5">
+          <!-- Hosted Fields div container -->
+          <div class="form-control" id="expiration-month"></div>
+        </div>
+        <div class="col-xs-5">
+          <!-- Hosted Fields div container -->
+          <div class="form-control" id="expiration-year"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-xs-6">
+          <label class="control-label">Security Code</label>
+          <!-- Hosted Fields div container -->
+          <div class="form-control" id="cvv"></div>
+        </div>
+      </div>
+    </div>
+    <button value="submit" id="btnSubmit" class="btn btn-success btn-lg center-block">Pay with <span id="card-type">Card</span></button>
+    <input type="hidden" name="payload" id="hdnCardPayload"/>
+  }
+</div>
+
+<div id="dlgErrorModal" style="display: none;">
+
+</div>

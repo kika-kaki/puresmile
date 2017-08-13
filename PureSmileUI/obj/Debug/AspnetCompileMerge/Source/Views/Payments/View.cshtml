@@ -1,0 +1,31 @@
+﻿@section Scripts
+{
+  <script src="@Url.Content("~/AppScripts/adminPaymentsList.js")"></script>
+}
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="page-head">
+  <h2 class="pull-left">
+    <label>Рayment history booking </label>
+  </h2>
+  <div class="clearfix"></div>
+</div>
+<div class="matter">
+  <div class="widget">
+      <div class="widget-content">
+          <div class="table-responsive">
+              <table id="jqGrid" class="table table-hover table-bordered table-condensed"></table>
+              <div id="pager"></div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script>
+    var bookingListUrl = '@(Url.Action("GetAdminPaymentsList", "Payments"))';
+    var id = '@ViewBag.Id';
+</script>

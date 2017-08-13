@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="224px" height="12px" viewBox="0 0 224 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
+    <title>D96B889E-30D0-40E2-A7C2-AABB9DEDA5C3</title>
+    <desc>Created with sketchtool.</desc>
+    <defs></defs>
+    <g id="booking-process" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="spritesheet-booking" transform="translate(-132.000000, -468.000000)">
+            <g id="graphic_or" transform="translate(132.000000, 464.000000)">
+                <text id="OR" font-family="OpenSans, Open Sans" font-size="14" font-weight="normal" fill="#A6A4A4">
+                    <tspan x="102.442383" y="15">OR</tspan>
+                </text>
+                <path d="M131.5,10.5 L222.549437,10.5" id="Line" stroke="#DFDEDC" stroke-linecap="square"></path>
+                <path d="M0.5,10.5 L91.5494371,10.5" id="Line-Copy" stroke="#DFDEDC" stroke-linecap="square"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PureSmileUI", "PureSmileUI\PureSmileUI.csproj", "{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseContext", "DatabaseContext\DatabaseContext.csproj", "{0DBC5F2C-19B0-4957-BE19-9EB6EC82FCA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailService", "MailService\MailService.csproj", "{53862BB3-FBA7-468A-912B-0CDE9DEC71C6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DBC5F2C-19B0-4957-BE19-9EB6EC82FCA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DBC5F2C-19B0-4957-BE19-9EB6EC82FCA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DBC5F2C-19B0-4957-BE19-9EB6EC82FCA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DBC5F2C-19B0-4957-BE19-9EB6EC82FCA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53862BB3-FBA7-468A-912B-0CDE9DEC71C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53862BB3-FBA7-468A-912B-0CDE9DEC71C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53862BB3-FBA7-468A-912B-0CDE9DEC71C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53862BB3-FBA7-468A-912B-0CDE9DEC71C6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

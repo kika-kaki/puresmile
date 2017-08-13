@@ -1,0 +1,20 @@
+﻿@model Guid?
+
+@{
+    ViewBag.Title = "ChangeStatusBooking";
+    Layout = "~/Views/Shared/_LayoutNotAuthorized.cshtml";
+}
+<div class="page-head">
+    <h2 class="pull-left">
+        @if (Model.HasValue)
+        {
+            @("Change status");
+        }
+        else
+        {
+            @("Status of booking changed");
+        }
+    </h2>
+    <div class="clearfix"></div>
+</div>
+

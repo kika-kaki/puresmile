@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="14px" viewBox="0 0 16 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
+    <title>50FC0BAE-852C-4842-8416-8A0E2BB93D43</title>
+    <desc>Created with sketchtool.</desc>
+    <defs></defs>
+    <g id="booking-process" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="spritesheet-booking" transform="translate(-434.000000, -567.000000)" fill="#586168">
+            <path d="M448,581 L436,581 C434.895,581 434,580.105 434,579 L434,574 L434,570 L434,569 C434,567.895 434.895,567 436,567 L448,567 C449.104,567 450,567.895 450,569 L450,570 L450,574 L450,579 C450,580.105 449.104,581 448,581 L448,581 Z M449,569 C449,568.447 448.552,568 448,568 L436,568 C435.447,568 435,568.448 435,569 L435,570 L449,570 L449,569 L449,569 Z M449,571 L435,571 L435,573 L449,573 L449,571 L449,571 Z M449,574 L435,574 L435,579 C435,579.553 435.447,580 436,580 L448,580 C448.552,580 449,579.552 449,579 L449,574 L449,574 Z M441,577 L444,577 L444,578 L441,578 L441,577 L441,577 Z M436,577 L440,577 L440,578 L436,578 L436,577 L436,577 Z" id="icon_cc"></path>
+        </g>
+    </g>
+</svg>

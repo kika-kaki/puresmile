@@ -1,0 +1,82 @@
+﻿@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/adminPaymentsList.js")"></script>
+}
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="page-head">
+    <h2 class="pull-left">
+        <label>Payments</label>
+    </h2>
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+    <table class="table table-striped table-hover">
+        <tr>
+            <td class="va-center">@Html.Label("Treatment category")</td>
+            <td>
+                @Html.DropDownList("TreatmentCategoryList", ViewBag.TreatmentCategoryList as SelectList, "", new { @class = "form-control" })
+            </td>
+            <td class="va-center">@Html.Label("From")</td>
+            <td>
+                <div id="datetimepickerFrom" class="input-append input-group dtpicker">
+                    <input id="dpFrom" class="form-control" data-format="yyyy-MM-dd" />
+                    <span class="input-group-addon add-on">
+                        <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                    </span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="va-center">@Html.Label("Treatment")</td>
+            <td>
+                @Html.DropDownList("TreatmentList", ViewBag.TreatmentList as SelectList, "", new { @class = "form-control" })
+            </td>
+            <td class="va-center">@Html.Label("To")</td>
+            <td>
+                <div id="datetimepickerTo" class="input-append input-group dtpicker">
+                    <input id="dpTo" class="form-control" data-format="yyyy-MM-dd" />
+                    <span class="input-group-addon add-on">
+                        <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                    </span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="va-center">@Html.Label("Clinic")</td>
+            <td>
+                @Html.DropDownList("ClinicList", ViewBag.ClinicList as SelectList, "", new { @class = "form-control" })
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td class="va-center">@Html.Label("")</td>
+            <td>
+                <label class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <button onclick="gridReload()" id="submitButton" class="btn btn-sm btn-primary">Search</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="widget">
+        <div class="widget-content">
+            <div class="table-responsive">
+                <table id="jqGrid" class="table table-hover table-bordered table-condensed"></table>
+                <div id="pager"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var bookingListUrl = '@(Url.Action("GetAdminPaymentsList", "Payments"))';
+    var id = '@ViewBag.Id';
+</script>
+

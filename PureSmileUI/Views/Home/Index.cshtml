@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+  <br/>
+</div>
+
+<script type="text/javascript">
+  @if (ViewBag.isModal != null && (bool) ViewBag.isModal && User.Identity.IsAuthenticated)
+  {
+    <text>
+  if (opener && opener.ExternalLoggedIn)
+  {
+    opener.ExternalLoggedIn(@(User.Identity.GetUserId<int>()));
+  }    
+    </text>
+  }
+</script>

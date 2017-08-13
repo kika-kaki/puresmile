@@ -1,0 +1,36 @@
+﻿@model PureSmileUI.Models.ExternalLoginListViewModel
+@using Microsoft.Owin.Security
+
+<div class="widget worange">
+    <div class="widget-head">
+        <h4>Use another service to login</h4>
+    </div>
+
+    <div class="widget-content">
+        <div class="padd">
+            @{
+                var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+                if (loginProviders.Count() == 0)
+                {
+                }
+                else
+                {
+                    using (Html.BeginForm("ExternalLogin", "Account", new { ReturnUrl = Model.ReturnUrl }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div id="socialLoginList">
+                            <p>
+                                @foreach (AuthenticationDescription p in loginProviders)
+                                {
+                                    <button type="submit" class="btn btn-sm btn-default" id="@p.AuthenticationType" 
+                                            name="provider" value="@p.AuthenticationType" 
+                                            title="Login using your @p.Caption account">@p.AuthenticationType</button>
+                                }
+                            </p>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>

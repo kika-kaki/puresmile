@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "All treatments";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/treatmentList.js")"></script>
+}
+<div class="page-head">
+    <h2 class="pull-left">
+        All&nbsp;treatments
+    </h2>
+    <div class="pull-right">
+        <a class="btn btn-primary btn-sm" href="~/Treatment/Edit/0">Add</a>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+    <div class="table-responsive">
+        <table class="table-condensed" id="jqGrid"></table>
+        <div id="pager"></div>
+    </div>
+</div>

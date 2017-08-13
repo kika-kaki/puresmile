@@ -1,0 +1,669 @@
+﻿@using Microsoft.Owin.Security
+@using PureSmileUI.App_Start
+@using PureSmileUI.Controllers
+@model PureSmileUI.Models.Dto.BookingEditItem
+
+@{
+    ViewBag.Title = "Payment";
+    Layout = User.Identity.IsAuthenticated ? (User.IsInRole("SuperUser") ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml")
+     : "~/Views/Shared/_LayoutNotAuthorized.cshtml";
+}
+
+@section head
+{
+    <link rel="stylesheet" type="text/css" href="~/Content/bootstrap-datepicker3.css" />
+    <link href="~/Content/ModalBookingStyles.css" rel="stylesheet" />
+
+    <style type="text/css">
+        .panel {
+            width: 80%;
+            margin: 2em auto;
+        }
+
+        .bootstrap-basic {
+            background: white;
+        }
+
+        .panel-body {
+            width: 90%;
+            margin: 2em auto;
+        }
+
+        .helper-text {
+            color: #8A6D3B;
+            font-size: 12px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            height: 12px;
+            display: block;
+        }
+
+        body {
+            background: #185196;
+        }
+
+        /* Braintree Hosted Fields styling classes*/
+        .braintree-hosted-fields-focused {
+            border: 1px solid #0275d8;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+        }
+
+            .braintree-hosted-fields-focused.focused-invalid {
+                border: 1px solid #ebcccc;
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(100, 100, 0, .6);
+            }
+
+        table tr td:first-child {
+            text-align: right;
+        }
+
+
+           @if (System.Text.RegularExpressions.Regex.Matches(Request.UserAgent.ToLower(), "(ipad)|(iphone)|(ipod)|(android)|(webos)/i").Count>0)
+           {
+                  <text>
+                .datepicker.dropdown-menu
+                    {
+                        display:none !important;
+
+                   }
+                  </text>
+
+           }
+
+        .treatment-image,.jsTreatmentName,.jsClinicName,.clinicDesc
+        {
+            cursor:pointer;
+        }
+
+    </style>
+
+    <div class='payments-scripts'>
+
+    </div>
+
+    @*<script src="https://js.braintreegateway.com/web/3.3.0/js/client.min.js"></script>
+        <script src="https://js.braintreegateway.com/web/3.3.0/js/paypal.min.js"></script>
+        @*<script src="https://js.braintreegateway.com/web/3.3.0/js/hosted-fields.js"></script>*@
+   
+    <script src="~/Scripts/ModalScrips/ModalBookingScripts.js"></script>
+}
+
+@section Scripts
+    {
+    <script type="text/javascript">
+        var AUTH_TOKEN = '@(ViewBag.ClientToken != null ? ViewBag.ClientToken : "")';
+        var GetTimeListLink = '@Url.Action("GetTimeList", "Booking")';
+        var GetUserInfoLink = '@Url.Action("GetUser", "User")';
+        var SaveBookingAsyncLink = '@Url.Action("SaveBookingAsync", "Booking")';
+        var PayAsyncLink = '@Url.Action("PayAsync", "Booking")';
+        var MaxRadiusForClosestClinicsOnMapInMeters = '@ConfigurationManager.MaxRadiusForClosestClinicsOnMapInMeters';
+    </script>
+    <script src="@Url.Content("~/AppScripts/modalBookingEdit.js")"></script>
+    <script type="text/javascript" src="~/AppScripts/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="~/Scripts/bootstrap-select.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArDRLcikv6bCIyhEdMKoh9uOOC2MxzOxU" async defer></script>
+}
+@{
+    var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+}
+
+@Html.HiddenFor(model => model.ClinicId, new { @id = "clinicId" })
+@Html.HiddenFor(model => model.TreatmentId, new { @id = "treatmentId" })
+@Html.HiddenFor(model => model.TreatmentCategoryId, new { @id = "treatmentCategoryId" })
+@Html.HiddenFor(model => model.BookDate, new { @id = "bookDateId" })
+
+<a id="cmdSelectTreatment" href="#treatmentModal" style="display: none;" class="btn btn-info" data-toggle="modal" data-backdrop="static" data-keyboard="false"></a>
+
+<div id="treatmentModal" class="modal booking-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div class="base-modal" onclick="CloseHours();" style="height:100%">
+        <div style="height:100%;">
+            @*Services STEP *@
+            <div class="step modal-content" id="bookingStep0">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <h4 class="modal-title">Services</h4>
+                    <ul class="steps-indicator">
+                        <li class="active"><a href="#">0</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-body">
+                    <ul class="treatments-list" style="overflow-y: hidden; overflow-x: hidden;">
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            for (int i = 0; i < Model.TreatmentCategoriesList.Length; i++)
+                            {
+                                <li class="jsTreatmentsCategories" id="jsTreatmenCat@(Model.TreatmentCategoriesList[i].Id)">
+                                    <div class="row">
+                                        <div class="treatment-image">
+                                            <img onclick="cmdSelectTreatmentCategory(this, @Model.TreatmentCategoriesList[i].Id, '@Model.TreatmentCategoriesList[i].Name', '@HttpUtility.JavaScriptStringEncode(Model.TreatmentCategoriesList[i].Description)'); btnSelectTreatmentCategory();" title="@Model.TreatmentCategoriesList[i].Name" src="@if (!string.IsNullOrEmpty(Model.TreatmentCategoriesList[i].PictureUrl))
+                                                {
+                                                    if (Model.TreatmentCategoriesList[i].PictureUrl.IndexOf("://") != -1)
+                                                    {
+                                                    <text>@Model.TreatmentCategoriesList[i].PictureUrl</text>
+                                                    }
+                                                    else
+                                                    {
+                                                    <text>@Href("~" + Model.TreatmentCategoriesList[i].PictureUrl)</text>
+                                                    }
+                                                }" />
+                                        </div>
+                                        <div class="treatment-description" >
+                                            <h5 onclick="cmdSelectTreatmentCategory(this, @Model.TreatmentCategoriesList[i].Id, '@Model.TreatmentCategoriesList[i].Name', '@HttpUtility.JavaScriptStringEncode(Model.TreatmentCategoriesList[i].Description)'); btnSelectTreatmentCategory();" class="jsTreatmentName" data="@(Model.TreatmentCategoriesList[i].Id)">
+                                                @Model.TreatmentCategoriesList[i].Name
+                                            </h5>
+
+                                            @Html.Partial("TreatmentDescription", string.IsNullOrEmpty(Model.TreatmentCategoriesList[i].Description) ? "" : Model.TreatmentCategoriesList[i].Description)
+                                        </div>
+                                        <div class="treatment-price">
+                                            <p class="price"> </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-footer btn-confirm-div" style="bottom:0;display:none;">
+                    <a id="btnSelectThreatmentCategory" class="btn btn-confirm" onclick="btnSelectTreatmentCategory();" disabled="" style="width: 100%;">NEXT</a>
+
+                </div>
+            </div>
+
+            @*FIRST STEP*@
+            <div class="step modal-content" id="bookingStep1">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <button type="button" class="btn-back" onclick="SetStep(0);"><span class=" sr-only">Previous</span></button>
+
+                    <h5 class="steps-title">Step 1 of 4</h5>
+                    <h4 class="modal-title">Your treatment</h4>
+                    <ul class="steps-indicator">
+                        <li><a href="#">0</a></li>
+                        <li class="active"><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="booking-search-box">
+                    <label for="booking-search" class="sr-only">Search</label>
+                    <input type="search" class="booking-search" id="txtTreatmentSearch" placeholder="Search the treatment"
+                           onchange="OnSearchTreatment();" onkeyup="OnSearchTreatment();" />
+                </div>
+                <div class="booking-search-box-replacer"></div>
+                <div class="booking-search-box-wrapper"></div>
+                <div class="modal-body">
+                    <ul class="treatments-list" style="overflow-y: auto; overflow-x: hidden;">
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            for (int i = 0; i < Model.TreatmentList.Length; i++)
+                            {
+                                <li class="jsTreatments" id="jsTreatment@(Model.TreatmentList[i].Id)" data-treatment-category="@Model.TreatmentList[i].TreatmentCategoryId">
+                                    <div class="row">
+                                        <div class="treatment-image" onclick="cmdSelectClinic(this, @Model.TreatmentList[i].Id, '@Model.TreatmentList[i].Name', '@HttpUtility.JavaScriptStringEncode(Model.TreatmentList[i].Description)', '@Model.TreatmentList[i].Price'); OnSelectDateAndLocation();" >
+                                            <img  title="@Model.TreatmentList[i].Name" src="@if (!string.IsNullOrEmpty(Model.TreatmentList[i].PictureUrl))
+                                                {
+                                                    if (Model.TreatmentList[i].PictureUrl.IndexOf("://") != -1)
+                                                    {
+                                                    <text>@Model.TreatmentList[i].PictureUrl</text>
+                                                    }
+                                                    else
+                                                    {
+                                                    <text>@Href("~" + Model.TreatmentList[i].PictureUrl)</text>
+                                                    }
+                                                }" />
+                                            <div class="treatment-price">
+                                                <p class="price">$@Model.TreatmentList[i].Price</p>
+
+                                            </div>
+                                        </div>
+                                        <div class="treatment-description">
+                                            <h5 class="jsTreatmentName" data="@(Model.TreatmentList[i].Id)" onclick="cmdSelectClinic(this, @Model.TreatmentList[i].Id, '@Model.TreatmentList[i].Name', '@HttpUtility.JavaScriptStringEncode(Model.TreatmentList[i].Description)', '@Model.TreatmentList[i].Price'); OnSelectDateAndLocation();" >
+                                                @Model.TreatmentList[i].Name
+                                            </h5>
+                                            @Html.Partial("TreatmentDescription", Model.TreatmentList[i].Description)
+                                        </div>
+                                        
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-footer btn-confirm-div" style="bottom:0; display:none;">
+                    <a id="btnSelectDateLocations" class="btn btn-confirm" onclick="OnSelectDateAndLocation();" disabled="" style="width: 100%;">NEXT</a>
+
+                </div>
+            </div>
+
+            @*SECOND STEP*@
+            <div class="step modal-content" id="bookingStep2" style="display: none;">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <button type="button" class="btn-back" onclick="if (!clinicsHidden) SetStep(1); else showAllClinics();"><span class=" sr-only">Previous</span></button>
+                    <h5 class="steps-title">Step 2 of 4</h5>
+                    <h4 class="modal-title">Time and location</h4>
+                    <ul class="steps-indicator">
+                        <li><a href="#">0</a></li>
+                        <li><a href="#">1</a></li>
+                        <li class="active"><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                    </ul>
+                </div>
+                <div class="modal-header-replacer"></div>
+                @for (int i = 0; i < Model.ClinicList.Count(); i++)
+                {
+                    @*Note col-md-6 col-md-offset-3 removed because hours window unexceptly long and *@
+                    <div class="jsClinicHours" style="display: none; z-index: 10001; position: fixed; border: 1px solid gray; padding: 0; margin-top: 40px; " onclick="$(this).toggle();" id="clinicHourrs_@Model.ClinicList[i].Id">
+                        <table class="table table-hover table-bordered" style="background: white; margin-bottom:0 !important;">
+                            @foreach (var hour in @Model.ClinicList[i].OpenClinicHourses)
+                            {
+                                <tr>
+                                    <td>@hour.Day.ToString()</td>
+                                    <td>
+                                        @if (hour.OpenHour.HasValue && hour.CloseHour.HasValue)
+                                        {
+                                            <text>
+                                                @hour.OpenHour.Value.ToString("HH:mm")
+                                                -
+                                                @hour.CloseHour.Value.ToString("HH:mm")
+                                            </text>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                }
+                <div class="booking-search-box closest-search">
+                    <div style="cursor: pointer;" onclick="ToggleLocationsShow(this);">
+                        <a class="search-btn closest-search-btn">Show closest</a>
+                        <a style="display: none;" class="search-btn show-all-btn">Show all</a>
+                        <input type="hidden" id="cbxShowClosest" value="false" />
+                    </div>
+                    <label for="booking-search" class="sr-only">Search</label>
+                    <input id="txtClinicSearch" class="booking-search" type="search" placeholder="Search by postcode, suburb, boutique" onchange="OnSearchClinic();" onkeyup="OnSearchClinic();" />
+                </div>
+                <div class="booking-search-box-replacer"></div>
+                <div class="booking-search-box-wrapper"></div>
+                <div class="modal-body">
+                    <ul id="ulClinicList" class="locations-list" style="overflow-y: auto; overflow-x: hidden;">
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+                            for (int i = 0; i < Model.ClinicList.Count(); i++)
+                            {
+                                var clinicId = Model.ClinicList[i].Id;
+                                var clinicSelectorId = "#jsClinic"+Model.ClinicList[i].Id;
+                                var clinicIdJS = Model.ClinicList[i].Id+"()";
+
+                                <li class="jsClinics " id="jsClinic@(Model.ClinicList[i].Id)" data-treatment-categories="@Model.ClinicList[i].TreatmentCategoriesString"   >
+                                    <div id="clinicMap_@Model.ClinicList[i].Id" class="location-map" onclick="selectClinic_@clinicIdJS" ></div>
+                                    <script type="text/javascript">
+                                        maps.push({
+                                            id: 'clinicMap_@Model.ClinicList[i].Id',
+                                            lat: '@Model.ClinicList[i].Lat',
+                                            lng: '@Model.ClinicList[i].Lng',
+                                            name: '@Model.ClinicList[i].Name',
+                                            address: '@Model.ClinicList[i].Address',
+                                            clinicId: '@Model.ClinicList[i].Id'
+                                        });
+
+                                        function selectClinic_@clinicIdJS
+                                        {
+                                            cmdSelectTime(@Model.ClinicList[i].Id, '@Model.ClinicList[i].Name', '@Model.ClinicList[i].Location', '@Model.ClinicList[i].Address @Model.ClinicList[i].City @Model.ClinicList[i].State');
+                                            hideClinicsExcept($('@clinicSelectorId')[0]);
+                                        }
+                                    </script>
+                                    <div class="location-description">
+                                        <h5 class="jsClinicName" data="@Model.ClinicList[i].Id" onclick="selectClinic_@clinicIdJS">
+                                            @Model.ClinicList[i].Name <span class="pull-right">@Model.ClinicList[i].Location</span>
+                                        </h5>
+
+                                        <p onclick="selectClinic_@clinicIdJS" class="clinicDesc" style="margin-bottom:15px;">@Model.ClinicList[i].Address @Model.ClinicList[i].City @Model.ClinicList[i].State</p>
+                                        <div class="location-buttons">
+                                            <a id="cmdSelectTime" onclick="cmdShowOpeningHours(@Model.ClinicList[i].Id, event);"
+                                               class="btn btn-opening-hours">Opening hours</a>
+                                            <a id="cmdSelectTime@(Model.ClinicList[i].Id)" onclick="selectClinic_@clinicIdJS"
+                                               class="jsBookHere btn-treatment">Select</a>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                    <div class="text-center time-message-cont">
+                                        <h4 id="timeError_@Model.ClinicList[i].Id" class="event-message text-danger" style="display: none;">This appointment is not available – try a different appointment time please.</h4>
+                                        <h4 id="timeSuccess_@Model.ClinicList[i].Id" class="event-message text-success" style="display: none;">This appointment time and date is available.</h4>
+                                        <h4 id="timeWarning_@Model.ClinicList[i].Id" class="event-message text-success" style="display: none;">This appointment time and date is available.</h4>
+                                        <h4 id="timeFatalError_@Model.ClinicList[i].Id" class="event-message text-danger" style="display: none;"><strong>Error. Contact your administrator.</strong></h4>
+                                    </div>
+                                
+                                <li id="divClinicTime_@Model.ClinicList[i].Id" style="display: none;" class="date-select-box jsDateSelect">
+                                    <div id="datetimepicker_@Model.ClinicList[i].Id" class="date-picker-box">
+                                        @Html.EditorFor(model => model.BookDate, new
+                                   {
+                                       htmlAttributes = new Dictionary<string, Object>
+                                                                                    {
+                                                                                      {"class", "input-date"},
+                                                                                      {"id", "bookDate" + @Model.ClinicList[i].Id}, {"data-format", "yyyy-MM-dd"},
+                                                                                      {"onchange", "SetModalBookingDate(this);"},
+                                                                                      {"type", "date"},
+                                                                                      {"min", DateTime.Now.ToString("yyyy-MM-dd") }
+
+
+                                                                                    }
+                                   })
+                                    </div>
+                                    <div class="time-picker-box">
+                                        <label for="input-time" class="sr-only">Select Time</label>
+                                        @Html.DropDownListFor(m => m.BookTime, new SelectList(Model.TimeList, "Id", "Name"), null, new Dictionary<string, Object>
+                                                                                    {
+                                                                                      {"class", "time-select"},
+                                                                                      {"id", "bookTime" + @Model.ClinicList[i].Id},
+                                                                                      {"onchange", "SetModalBookingTime(this);"}
+                                                                                    })
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <div class="modal-header-replacer"></div>
+                    <div class="modal-footer btn-confirm-div">
+                        <a style="width: 100%;" id="cmdSelectDetails" class="btn btn-confirm" disabled data-toggle="modal" onclick="OnEnterDetails();">Make a booking</a>
+                    </div>
+                </div>
+
+            </div>
+
+            @*THIRD STEP*@
+            <div class="step modal-content" id="bookingStep3" style="display: none;">
+                @using (Html.BeginForm(new { id = "formStep3" }))
+                {
+                    <div class="modal-header">
+                        <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                        <button type="button" class="btn-back" onclick="SetStep(2);"><span class=" sr-only">Previous</span></button>
+                        <h5 class="steps-title">Step 3 of 4</h5>
+                        <h4 class="modal-title">Your details</h4>
+                        <ul class="steps-indicator">
+                            <li><a href="#">0</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li class="active"><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                        </ul>
+                    </div>
+                    <div class="modal-header-replacer"></div>
+                    <div class="modal-body">
+                        <div class="details-form-wrap">
+                            <div class="form-row">
+                                <div class="form-group one-half">
+                                    @Html.LabelFor(model => model.FirstName)
+                                    @Html.EditorFor(model => model.FirstName, new
+                               {
+                                   htmlAttributes = new Dictionary<string, Object>
+                                      {
+                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}
+                                      }
+                               })
+                                    <div class="FirstNameErr details-error">
+
+                                    </div>
+                                </div>
+                                <div class="form-group one-half">
+                                    @Html.LabelFor(model => model.LastName)
+                                    @Html.EditorFor(model => model.LastName, new
+                               {
+                                   htmlAttributes = new Dictionary<string, Object>
+                                      {
+                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}
+                                      }
+                               })
+                                    <div class="LastNameErr details-error">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ClientEmail)
+                                @Html.EditorFor(model => model.ClientEmail, new
+                           {
+                               htmlAttributes = new Dictionary<string, Object>
+                                      {
+                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}
+                                      }
+                           })
+                                <div class="ClientEmailErr details-error">
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ClientPhone)
+                                @Html.EditorFor(model => model.ClientPhone, new
+                           {
+                               htmlAttributes = new Dictionary<string, Object>
+                                      {
+                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}, {"onkeyup", "ValidateStep3();"}
+                                      }
+                           })
+                                <div class="ClientPhoneErr details-error">
+
+                                </div>
+                            </div>
+                        @*@if (!(User.Identity.IsAuthenticated || loginProviders == null || !loginProviders.Any())) {
+                            <text>
+                            <hr class="divider" />
+                            </text>
+
+                        }*@
+                           
+                            @*<div style="height: 53px;" class="col-md-12 social-login">
+                                @if (User.Identity.IsAuthenticated || loginProviders == null || !loginProviders.Any())
+                                {
+                                }
+                                else
+                                {
+                                    using (Html.BeginForm("ExternalLogin", "Account"))
+                                    {
+                                        foreach (AuthenticationDescription p in loginProviders)
+                                        {
+                                            <div class="one-half center" style="margin-top: 20px;">
+                                                <a class="btn btn-md btn-primary col-md-12 bntExternalLogin  @p.AuthenticationType.ToLower()-login" title="Login using your @p.Caption account" onclick="OpenModalExternalLogin('@(Url.Action("ExternalLogin", "Account", new {provider = p.AuthenticationType, isModal = true}))');">
+                                                    @p.AuthenticationType
+                                                </a>
+                                            </div>
+                                        }
+                                    }
+                                }
+                            </div>*@
+
+                        </div>
+                        <div class="modal-footer btn-confirm-div">
+
+                            @*<a style=" width 100%;" id="btnStep3" class="btn btn-confirm" onclick="ButtonStep3Click();">Book now</a>*@
+
+                            <a style="width: 100%;" id="btnStep3" class="btn btn-confirm" onclick="ButtonStep3Click();">NEXT</a>
+
+                        </div>
+
+                    </div>
+                }
+            </div>
+
+            @*FOURTH STEP*@
+            <div class="step modal-content" id="bookingStep4" style="display: none;">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <button type="button" class="btn-back" onclick="SetStep(3);"><span class=" sr-only">Previous</span></button>
+                    <h5 class="steps-title">Step 4 of 4</h5>
+                    <h4 class="modal-title">Review</h4>
+                    <ul class="steps-indicator">
+                        <li><a href="#">0</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li class="active"><a href="#">4</a></li>
+                    </ul>
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-body">
+                    <ul class="review-list">
+                        <li>
+                            <h3 class="review-title" style="border-bottom: none">My treatment</h3>
+                            <h4 class="treatment-name">
+                                <p style="margin-bottom:0" id="step4TreatmentTitle"></p>
+                                <span id="step4TreatmentPrice"></span>
+                            </h4>
+                            <p class="treatment-description" id="step4TreatmentDescription"></p>
+                        </li>
+                        <li>
+                            <h3 class="review-title" style="border-bottom: none">Time and location</h3>
+                            <h5 id="step4LocationName"></h5>
+                            <p id="step4LocationAddress"></p>
+                            <h5>Date and time</h5>
+                            <p id="step4DateAndTime"></p>
+                        </li>
+                        <li>
+                            <h3 style="border-bottom: none" class="review-title">My Details</h3>
+                            <p class="details name" id="step4FullName"></p>
+                            <p class="details email" id="step4Email"></p>
+                            <p class="details phone" id="step4Mobile"></p>
+                        </li>
+                    </ul>
+                    <div class="review-total">
+                        <h3 style="border-bottom: none">Your total <span id="step4TotalPrice"></span></h3>
+                    </div>
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-footer btn-confirm-div">
+                    <a class="btn btn-confirm" onclick="CreateBookingAsync();" style="width: 100%;">FINISH</a>
+                </div>
+            </div>
+
+            @*FIVETH STEP*@
+            <div class="step modal-content" id="bookingStep5" style="display: none;">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <button type="button" class="btn-back" onclick="SetStep(4);"><span class=" sr-only">Previous</span></button>
+                    <h5 class="steps-title">Step 4 of 4</h5>
+                    <h4 class="modal-title">Payment method</h4>
+                    <ul class="steps-indicator">
+                        <li><a href="#">0</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li class="active"><a href="#">4</a></li>
+                    </ul>
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-body" style="height:388px">
+                    <h3 style="text-align:center; border-bottom:0; margin-top:50px;">Creating booking, please wait...</h3>
+                </div>
+            </div>
+
+            @*SIXTH STEP*@
+            <div class="step modal-content" id="bookingStep6" style="display: none;">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <button type="button" class="btn-back" onclick="SetStep(4);"><span class=" sr-only">Previous</span></button>
+                    <h5 class="steps-title">Step 4 of 4</h5>
+                    <h4 class="modal-title">Payment method</h4>
+                    <ul class="steps-indicator">
+                        <li><a href="#">0</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li class="active"><a href="#">4</a></li>
+                    </ul>
+                </div>
+                <div class="modal-header-replacer" style="height:73px;"></div>
+                <div class="modal-body" style="margin-bottom: 0 !important">
+                    <div class="payment-form-wrap">
+                        <!-- Bootstrap inspired Braintree Hosted Fields example -->
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label for="card-num" class="icon-cc">Credit Card Number</label>
+                            <!-- Hosted Fields div container -->
+                            <div class="text-input" id="card-number"></div>
+                            <span class="helper-text"></span>
+                        </div>
+                        <div class="form-row" style="margin:0;">
+                            <label class="icon-exp" style="width: 100%; ">Expiry Date</label>
+                            <div style="float: left; width: 45%;" class="text-input one-half" id="expiration-month">
+                            </div>
+                            <div style="float: right; width: 45%;" class="text-input one-half" id="expiration-year">
+                                <!-- Hosted Fields div container -->
+                            </div>
+                        </div>
+                        <div class="form-group cvv-div" style="margin-top:20px">
+                            <label for="cvv" class="icon-lock">CVV</label>
+                            <!-- Hosted Fields div container -->
+                            <div style=" width: 45%;" class="text-input" id="cvv"></div>
+                        </div>
+                        <div class="payment-errors form-group reset-top-margin reset-bottom-margin">
+
+
+                        </div>
+
+                        <div class="terms-checkbox">
+                            <input type="checkbox" id="terms">
+                            <label for="terms">I agree with Pure Smile’s terms and conditions</label>
+                        </div>
+                        <div style="font-size:13px;line-height:1.1; margin-bottom:10px;">
+                            We are holding your appointment for the next<br/><b>5 minutes</b> while you complete the payment. Please proceed with your payment to secure your booking
+                        </div>
+
+                        <div>
+                            <a id="btnSubmit" class="paynow-btn" style="text-align:center">Pay with <span id="card-type">Card</span></a>
+                        </div>
+                        <hr class="divider">
+                        <div>
+                            <a class="paypal-btn" href="#" id="paypal-button">Paypal</a>
+                        </div>
+                        <p class="footnote">Your payment details are secured by industry-standard 2048-bit encyption</p>
+                        <input type="hidden" name="payload" id="hdnCardPayload" />
+                    </div>
+                </div>
+            </div>
+
+            @*SEVENTH STEP*@
+            <div class="step modal-content" id="bookingStep7" style="display: none;">
+                <div class="modal-header">
+                    <button type="button" class="redirect-btn" onclick="RedirectToPureSmile()" aria-label="Close"></button>
+                    <h5 class="steps-title">Step 4 of 4</h5>
+                    <h4 class="modal-title">Complete</h4>
+                    <ul class="steps-indicator">
+                        <li><a href="#">0</a></li>
+                        <li><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li class="active"><a href="#">4</a></li>
+                    </ul>
+                </div>
+                <div class="modal-header-replacer"></div>
+                <div class="modal-body">
+                    <div class="complete-wrap">
+                        <h2>Thank you,<br />your booking is complete!</h2>
+                        <p class="footnote">You will receive an email confirmation of your appointment shortly</p>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var getEventUrl = "@Url.Action("GetEvents", "Calendar")";
+</script>

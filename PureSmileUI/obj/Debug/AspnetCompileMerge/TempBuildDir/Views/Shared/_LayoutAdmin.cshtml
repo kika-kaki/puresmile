@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Pure Smile</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  @Styles.Render("~/Content/css")
+  @Scripts.Render("~/bundles/modernizr")
+  @Scripts.Render("~/bundles/jquery")
+  @Scripts.Render("~/bundles/bootstrap")
+  @Scripts.Render("~/bundles/jqGrid")
+  @RenderSection("scripts", required: false)
+  @RenderSection("head", false)
+  <script type="text/javascript">
+    function ToggleVisibility(obj)
+    {
+      if ($('#nav').css('display') == 'none') {
+        obj.show();
+      } else {
+        obj.hide();
+      }
+    }
+  </script>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top bs-docs-nav" role="banner">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle btn-navbar" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                    <span>Menu</span>
+                </button>
+                <!-- Site name for smallar screens -->
+                <a href="" class="navbar-brand hidden-lg">PureSmile</a>
+            </div>
+            <div class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                <img id="img_logo" alt="Logo" src="@Url.Content("~/Content/images/PS_logo-02.svg")" height="60">
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <header>
+        <div class="container">
+            <div class="row">
+            </div>
+        </div>
+    </header>
+    <div class="content">
+        <div class="sidebar">
+            <div class="sidebar-dropdown" onclick="ToggleVisibility($('#nav'));">
+                <a href="#">Navigation</a>
+            </div>
+            <ul id="nav">
+                <li><a href="~/Booking/AdminBookingList"><i class="fa fa-shopping-cart"></i>Bookings</a></li>
+                <li><a href="~/Clinic/ClinicList"><i class="fa fa-plus-square"></i>Clinics</a></li>
+                <li><a href="~/TreatmentCategory/TreatmentCategoryList"><i class="fa fa-stethoscope"></i>Treatment сategories</a></li>
+                <li><a href="~/Treatment/TreatmentList"><i class="fa fa-user-md"></i>Treatments</a></li>
+                <li><a href="~/User/UserList"><i class="fa fa-users"></i>Users</a></li>
+                <li><a href="~/Email/EmailList"><i class="fa fa-envelope-o"></i>Emails</a></li>
+                <li><a href="~/Notification/NotificationList"><i class="fa fa-envelope-o"></i>Notification</a></li>
+                <li class="has_sub">
+                    <a href="#"><i class="fa fa-list-alt"></i>Reports<span class="pull-right"><i class="fa fa-chevron-right"></i></span></a>
+                    <ul style="display: none;">
+                        <li><a href="~/Clinic/AdminClinicSummary">Clinics - summary</a></li>
+                        <li><a href="~/Clinic/AdminClinicDetails">Clinics - details</a></li>
+                        <li><a href="~/Payments/AllPaymentsView">Payments - summary</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="mainbar">
+            @RenderBody()
+            <div class="horizontal-links">
+                <a href="~/Home/About">Home</a> | <a href="~/Home/Contact">Contact us</a>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</body>
+</html>

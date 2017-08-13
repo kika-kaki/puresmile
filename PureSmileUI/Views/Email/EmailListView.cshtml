@@ -1,0 +1,25 @@
+﻿@{
+    ViewBag.Title = "All emails";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/emailList.js")"></script>
+}
+<div class="page-head">
+    <h2 class="pull-left">
+        <label>All emails</label>
+    </h2>
+    @*<div class="pull-right">
+        <a class="btn btn-primary btn-sm" href="~/Email/Edit/0">Add</a>
+    </div>*@
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+    <div class="table-responsive">
+        <table class="table-condensed" id="jqGrid"></table>
+        <div id="pager"></div>
+    </div>
+</div>
+
+

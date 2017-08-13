@@ -1,0 +1,37 @@
+﻿@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/adminBookingList.js")"></script>
+}
+@{
+    ViewBag.Title = "All booking";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+
+
+
+<div class="page-head">
+    <h2 class="pull-left">
+        <label>Bookings</label>
+    </h2>
+
+    <div class="pull-right">
+        <a class="btn btn-primary btn-sm" href="~/Booking/AdminEdit/0">Add</a>
+        <a class="btn btn-info btn-sm" href="~/Booking/ModalBookingEdit/0">Add modal</a>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+@{Html.RenderPartial("FilterBookingsPartial");}
+
+<div class="matter">
+    <div class="widget">
+        <div class="widget-content">
+            <div class="table-responsive">
+                <table id="jqGrid" class="table-condensed"></table>
+                <div id="pager"></div>
+            </div>
+        </div>
+    </div>
+</div>

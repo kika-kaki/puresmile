@@ -1,0 +1,720 @@
+﻿@using Microsoft.Owin.Security
+@using PureSmileUI.App_Start
+@model PureSmileUI.Models.Dto.BookingEditItem
+
+@{
+    ViewBag.Title = "Payment";
+    Layout = User.Identity.IsAuthenticated ? (User.IsInRole("SuperUser") ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml")
+     : "~/Views/Shared/_LayoutNotAuthorized.cshtml";
+}
+
+@section head
+{
+  <style type="text/css">
+    .panel {
+      width: 80%;
+      margin: 2em auto;
+    }
+
+    .bootstrap-basic {
+      background: white;
+    }
+
+    .panel-body {
+      width: 90%;
+      margin: 2em auto;
+    }
+
+    .helper-text {
+      color: #8A6D3B;
+      font-size: 12px;
+      margin-top: 5px;
+      height: 12px;
+      display: block;
+    }
+
+    /* Braintree Hosted Fields styling classes*/
+    .braintree-hosted-fields-focused {
+      border: 1px solid #0275d8;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+    }
+
+    .braintree-hosted-fields-focused.focused-invalid {
+      border: 1px solid #ebcccc;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(100, 100, 0, .6);
+    }
+
+    table tr td:first-child {
+      text-align: right;
+    }
+  </style>
+
+  <script src="https://js.braintreegateway.com/web/3.3.0/js/client.min.js"></script>
+  <script src="https://js.braintreegateway.com/web/3.3.0/js/paypal.min.js"></script>
+  <script src="https://js.braintreegateway.com/web/3.3.0/js/hosted-fields.js"></script>
+  <script>
+    var AUTH_TOKEN = '@(ViewBag.ClientToken != null ? ViewBag.ClientToken : "")';
+    $(document).ready(function() {
+      // Fetch the button you are using to initiate the PayPal flow
+      var paypalButton = document.getElementById('paypal-button');
+      // Create a Client component
+      braintree.client.create({
+        authorization: AUTH_TOKEN
+      }, function(clientErr, clientInstance) {
+        if (clientErr != null) {
+          ErrorLogger.LogError(clientErr);
+        }
+        braintree.paypal.create({
+          client: clientInstance
+        }, function(err, paypalInstance) {
+          if (err != null) {
+            ErrorLogger.LogError(err);
+          }
+          paypalButton.addEventListener('click', function() {
+            paypalInstance.tokenize({
+              flow: 'checkout', // Required
+              amount: paymentAmount, // Required
+              currency: 'USD', // Required
+              locale: 'en_US',
+              enableShippingAddress: false
+            }, function(err, tokenizationPayload) {
+              if (err != null) {
+                ErrorLogger.LogError(err);
+                return;
+              } else {
+                $.ajax({
+                  url: PayAsyncLink + "?payload=" + tokenizationPayload.nonce + "&bookingId=" + createdBookingId,
+                  method: "GET",
+                  datatype: "json"
+                }).done(function(data) {
+                  if (data.success) {
+                    SetStep(7);
+                  } else {
+                    alert("Error occured while processing your payment. Please try again later");
+                  }
+                });
+              }
+            });
+          });
+        });
+      });
+    });
+
+    var cardInitialized = false;
+
+    function CreditCardDialog() {
+      cardInitialized = true;
+      braintree.client.create({
+        authorization: AUTH_TOKEN
+      }, function(err, clientInstance) {
+        if (err) {
+          ErrorLogger.LogError(err);
+          return;
+        }
+
+        braintree.hostedFields.create({
+          client: clientInstance,
+          styles: {
+            'input': {
+              'font-size': '14px',
+              'font-family': 'helvetica, tahoma, calibri, sans-serif',
+              'color': '#3a3a3a'
+            },
+            ':focus': {
+              'color': 'black'
+            }
+          },
+          fields: {
+            number: {
+              selector: '#card-number',
+              placeholder: '4111 1111 1111 1111'
+            },
+            cvv: {
+              selector: '#cvv',
+              placeholder: '123'
+            },
+            expirationMonth: {
+              selector: '#expiration-month',
+              placeholder: 'MM'
+            },
+            expirationYear: {
+              selector: '#expiration-year',
+              placeholder: 'YY'
+            }
+          }
+        }, function(err, hostedFieldsInstance) {
+          if (err) {
+            ErrorLogger.LogError(err);
+            return;
+          }
+
+          hostedFieldsInstance.on('validityChange', function(event) {
+            var field = event.fields[event.emittedBy];
+
+            if (field.isValid) {
+              if (event.emittedBy === 'expirationMonth' || event.emittedBy === 'expirationYear') {
+                if (!event.fields.expirationMonth.isValid || !event.fields.expirationYear.isValid) {
+                  return;
+                }
+              } else if (event.emittedBy === 'number') {
+                $('#card-number').next('span').text('');
+              }
+
+              // Apply styling for a valid field
+              $(field.container).parents('.form-group').addClass('has-success');
+            } else if (field.isPotentiallyValid) {
+              // Remove styling  from potentially valid fields
+              $(field.container).parents('.form-group').removeClass('has-warning');
+              $(field.container).parents('.form-group').removeClass('has-success');
+              if (event.emittedBy === 'number') {
+                $('#card-number').next('span').text('');
+              }
+            } else {
+              // Add styling to invalid fields
+              $(field.container).parents('.form-group').addClass('has-warning');
+              // Add helper text for an invalid card number
+              if (event.emittedBy === 'number') {
+                $('#card-number').next('span').text('Looks like this card number has an error.');
+              }
+            }
+          });
+
+          hostedFieldsInstance.on('cardTypeChange', function(event) {
+            // Handle a field's change, such as a change in validity or credit card type
+            if (event.cards.length === 1) {
+              $('#card-type').text(event.cards[0].niceType);
+            } else {
+              $('#card-type').text('Card');
+            }
+          });
+
+          $('#btnSubmit').bind("click", function(event) {
+            event.preventDefault();
+            hostedFieldsInstance.tokenize(function(err, payload) {
+              if (err) {
+                ErrorLogger.LogError(err);
+                return;
+              }
+              // send payload to server async
+              $.ajax({
+                url: PayAsyncLink + "?payload=" + payload.nonce + "&bookingId=" + createdBookingId,
+                method: "GET",
+                datatype: "json"
+              }).done(function(data) {
+                if (data.success) {
+                  SetStep(7);
+                } else {
+                  alert("Error occured while processing your payment. Please try again later");
+                }
+              });
+            });
+          });
+        });
+      });
+    }
+
+    function ShowError(text) {
+      $("#dlgErrorModal").text(text);
+      $("#dlgErrorModal").dialog(
+        {
+          title: "Error",
+          modal: true,
+          closeOnEscape: true,
+          position: {
+            my: "center",
+            at: "center",
+            of: ".matter"
+          }
+        }
+      );
+    }
+  </script>
+}
+
+@section Scripts
+{
+  <script type="text/javascript">
+    var GetTimeListLink = '@Url.Action("GetTimeList", "Booking")';
+    var GetUserInfoLink = '@Url.Action("GetUser", "User")';
+    var SaveBookingAsyncLink = '@Url.Action("SaveBookingAsync", "Booking")';
+    var PayAsyncLink = '@Url.Action("PayAsync", "Booking")';
+    var MaxRadiusForClosestClinicsOnMapInMeters = '@ConfigurationManager.MaxRadiusForClosestClinicsOnMapInMeters';
+  </script>
+  <script src="@Url.Content("~/AppScripts/modalBookingEdit.js")"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArDRLcikv6bCIyhEdMKoh9uOOC2MxzOxU" async defer></script>
+}
+@{
+    var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+}
+
+@Html.HiddenFor(model => model.ClinicId, new { @id = "clinicId" })
+@Html.HiddenFor(model => model.TreatmentId, new { @id = "treatmentId" })
+@Html.HiddenFor(model => model.BookDate, new { @id = "bookDateId" })
+
+<a id="cmdSelectTreatment" href="#treatmentModal" style="display: none;" class="btn btn-info" data-toggle="modal"></a>
+
+<div id="treatmentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+<div class="col-sm-4 col-sm-offset-4" style="bottom: 0; display: block; position: absolute; top: 0;" onclick="CloseHours();">
+  <div style="min-width: 417px; min-height: 538px;">
+    @*FIRST STEP*@
+    <div class="widget step" id="bookingStep1">
+      <div class="widget-head">
+        <div class="row">
+          <div class="col-md-12 center">
+            @("Step 1 of 4")
+            <br />
+            @("Your treatment")
+          </div>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          <div class="row">
+            <div class="col-sm-12">
+              <input type="text" class="form-control" id="txtTreatmentSearch" placeholder="Search for treatments"
+                     onchange="OnSearchTreatment();" onkeyup="OnSearchTreatment();" />
+            </div>
+          </div>
+          <ul class="latest-news" style="height: 388px; overflow-y: auto; overflow-x: hidden;">
+            <li></li>
+            @using (Html.BeginForm())
+        {
+        @Html.AntiForgeryToken()
+          for (int i = 0; i < Model.TreatmentList.Length; i++)
+          {
+          <li class="jsTreatments" id="jsTreatment@(Model.TreatmentList[i].Id)">
+            <div class="recent-content">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="roundBorder">
+                    <img title="@Model.TreatmentList[i].Name" src="@if (!string.IsNullOrEmpty(Model.TreatmentList[i].PictureUrl))
+                    {
+                      if (Model.TreatmentList[i].PictureUrl.IndexOf("://") != -1)
+                      {
+                        <text>@Model.TreatmentList[i].PictureUrl</text>
+                      }
+                      else
+                      {
+                        <text>@Href("~" + Model.TreatmentList[i].PictureUrl)</text>
+                      }
+                    }" />
+                  </div>
+                </div>
+                <div class="col-md-9">
+                  <div class="pull-left">
+                    <strong class="jsTreatmentName" data="@(Model.TreatmentList[i].Id)">
+                      @Model.TreatmentList[i].Name
+                    </strong>
+                  </div>
+                  <div class="pull-right">
+                    <strong>$@Model.TreatmentList[i].Price</strong>
+                  </div>
+                  <div class="clearfix"></div>
+                  <div class="pull-left">
+                    <span>@Model.TreatmentList[i].Description</span>
+                  </div>
+                  <br />
+                  <a id="cmdSelectClinic" onclick="cmdSelectClinic(this, @Model.TreatmentList[i].Id, '@Model.TreatmentList[i].Name', '@Model.TreatmentList[i].Description', '@Model.TreatmentList[i].Price')"
+                     class="btn btn-info pull-right jsBookBtn" data-toggle="modal">Book</a>
+                  <div class="clearfix"></div>
+                </div>
+              </div>
+            </div>
+          </li>
+          }
+        }
+          </ul>
+          <div class="row" style="bottom: 0; position: relative;">
+            <div class="col-sm-12">
+              <a id="btnSelectDateLocations" class="btn btn-sm btn-primary col-sm-12" onclick="OnSelectDateAndLocation();" disabled="" style="width: 100%;">Select date and location</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @*SECOND STEP*@
+    <div class="widget step" id="bookingStep2" style="display: none;">
+      <div class="widget-head">
+        <div style="width: 25%; float: left;">
+          <div style="margin-top: 13px;">
+            <i class="fa fa-arrow-left" style="cursor: pointer; font-size: 18px; color: gray;" onclick="SetStep(1);"></i>
+          </div>
+        </div>
+        <div class="center" style="width: 50%; float: left;">
+          @("Step 2 of 4")
+          <br />
+          @("Time and location")
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          @for (int i = 0; i < Model.ClinicList.Count(); i++)
+      {
+      <div class="col-md-6 col-md-offset-3 jsClinicHours" style="display: none; z-index: 10001; position: absolute; border: 1px solid gray; padding: 0; margin-top: 20px;" onclick="$(this).toggle();" id="clinicHourrs_@Model.ClinicList[i].Id">
+        <table class="table table-hover table-bordered" style="background: white;">
+          @foreach (var hour in @Model.ClinicList[i].OpenClinicHourses)
+            {
+            <tr>
+              <td>@hour.Day.ToString()</td>
+              <td>
+                @if (hour.OpenHour.HasValue && hour.CloseHour.HasValue)
+                  {
+                  <text>
+                    @hour.OpenHour.Value.ToLocalTime().ToString("HH:mm")
+                    -
+                    @hour.CloseHour.Value.ToLocalTime().ToString("HH:mm")
+                  </text>
+                  }
+              </td>
+            </tr>
+            }
+        </table>
+      </div>
+      }
+          <div style="padding: 0 5px; float: left; width: 70%;">
+            <input id="txtClinicSearch" class="form-control" placeholder="Search clinics" onchange="OnSearchClinic();" onkeyup="OnSearchClinic();" />
+          </div>
+          <div style="cursor: pointer; font-size: 14px; padding: 5px 0 5px 5px; border-left: 1px solid gray; float: left; width: 30%;" " onclick=" ToggleLocationsShow(this);">
+            <a style="display: none;"><i class="fa fa-list-ul" style="display: inline-block; width: 20px;"></i><span>Show all</span></a>
+            <a><i class="fa fa-map-marker" style="display: inline-block; width: 20px; text-align: center;"></i><span>Show closest</span></a>
+            <input type="hidden" id="cbxShowClosest" value="false" />
+          </div>
+          <div class="clearfix"></div>
+          <ul id="ulClinicList" class="latest-news" style="height: 363px; overflow-y: auto; overflow-x: hidden;">
+            <li></li>
+            @using (Html.BeginForm())
+        {
+        @Html.AntiForgeryToken()
+          for (int i = 0; i < Model.ClinicList.Count(); i++)
+          {
+          <li class="jsClinics" id="jsClinic@(Model.ClinicList[i].Id)">
+            <div class="recent-content">
+              <div class="row">
+                <div class="col-md-5">
+                  <div id="clinicMap_@Model.ClinicList[i].Id" style="border: 1px solid gray; width: 120px; height: 120px; padding: 0; margin: 0; overflow: hidden;">
+                  </div>
+                  <script type="text/javascript">
+                      maps.push({
+                        id: 'clinicMap_@Model.ClinicList[i].Id',
+                        lat: '@Model.ClinicList[i].Lat',
+                        lng: '@Model.ClinicList[i].Lng',
+                        name: '@Model.ClinicList[i].Name',
+                        address: '@Model.ClinicList[i].Address',
+                        clinicId: '@Model.ClinicList[i].Id'
+                      });
+                  </script>
+                </div>
+                <div class="col-md-7">
+                  <strong class="jsClinicName" data="@Model.ClinicList[i].Id">
+                    @Model.ClinicList[i].Name
+                  </strong>
+                  <div class="pull-right">@Model.ClinicList[i].Location</div>
+                  <br />
+                  <span>@Model.ClinicList[i].Address @Model.ClinicList[i].City @Model.ClinicList[i].State</span>
+                  <div class="clearfix"></div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <a id="cmdSelectTime" onclick="cmdShowOpeningHours(@Model.ClinicList[i].Id, event);"
+                         class="btn btn-default pull-right">Opening hours</a>
+                    </div>
+                    <div class="col-md-6">
+                      <a id="cmdSelectTime@(Model.ClinicList[i].Id)" onclick="cmdSelectTime(@Model.ClinicList[i].Id, '@Model.ClinicList[i].Name', '@Model.ClinicList[i].Location', '@Model.ClinicList[i].Address @Model.ClinicList[i].City @Model.ClinicList[i].State')"
+                         class="btn btn-info pull-right jsBookHere">Book here</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="divClinicTime_@Model.ClinicList[i].Id" style="display: none; margin-top: 5px; padding: 5px;" class="row bg-primary">
+                <div class="col-sm-6">
+                  <div id="datetimepicker_@Model.ClinicList[i].Id" class="input-append input-group dtpicker">
+                    @Html.EditorFor(model => model.BookDate, new
+                      {
+                        htmlAttributes = new Dictionary<string, Object>
+                        {
+                          {"class", "form-control"},
+                          {"id", "bookDate" + @Model.ClinicList[i].Id}, {"data-format", "yyyy-MM-dd"},
+                          {"onchange", "SetModalBookingDate(this);"}
+                        }
+                      })
+                    <span class="input-group-addon add-on">
+                      <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                    </span>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  @Html.DropDownListFor(m => m.BookTime, new SelectList(Model.TimeList, "Id", "Name"),
+                      new
+                      {
+                        @class = "form-control", @id = "bookTime" + @Model.ClinicList[i].Id,
+                        onchange = "SetModalBookingTime(this);"
+                      })
+                </div>
+              </div>
+
+            </div>
+          </li>
+          }
+        }
+          </ul>
+          <br />
+          <a style="width: 100%;" id="cmdSelectDetails" class="btn btn-primary col-sm-12" disabled data-toggle="modal" onclick="OnEnterDetails();">Enter your details</a>
+          <div class="clearfix"></div>
+        </div>
+
+      </div>
+    </div>
+
+    @*THIRD STEP*@
+    @using (Html.BeginForm(new { id = "formStep3" }))
+    {
+    <div class="widget step" id="bookingStep3" style="display: none;">
+      <div class="widget-head">
+        <div style="width: 25%; float: left;">
+          <div style="margin-top: 13px;">
+            <i class="fa fa-arrow-left" style="cursor: pointer; font-size: 18px; color: gray;" onclick="SetStep(2);"></i>
+          </div>
+        </div>
+        <div class="center" style="width: 50%; float: left;">
+          @("Step 3 of 4")
+          <br />
+          @("Your details")
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          <div class="row">
+            <div class="col-md-12">
+              @Html.LabelFor(model => model.FirstName)
+              @Html.EditorFor(model => model.FirstName, new
+            {
+              htmlAttributes = new Dictionary<string, Object>
+              {
+                {"class", "form-control"}, {"onchange", "ValidateStep3();"}
+              }
+            })
+            </div>
+            <div class="col-md-12">
+              @Html.LabelFor(model => model.LastName)
+              @Html.EditorFor(model => model.LastName, new
+            {
+              htmlAttributes = new Dictionary<string, Object>
+              {
+                {"class", "form-control"}, {"onchange", "ValidateStep3();"}
+              }
+            })
+            </div>
+            <div class="col-md-12">
+              @Html.LabelFor(model => model.ClientEmail)
+              @Html.EditorFor(model => model.ClientEmail, new
+            {
+              htmlAttributes = new Dictionary<string, Object>
+              {
+                {"class", "form-control"}, {"onchange", "ValidateStep3();"}
+              }
+            })
+            </div>
+            <div class="col-md-12">
+              @Html.LabelFor(model => model.ClientPhone)
+              @Html.EditorFor(model => model.ClientPhone, new
+            {
+              htmlAttributes = new Dictionary<string, Object>
+              {
+                {"class", "form-control"}, {"onchange", "ValidateStep3();"}, {"onkeyup", "ValidateStep3();"}
+              }
+            })
+            </div>
+            <div style="height: 53px;" class="col-md-12">
+              @if (User.Identity.IsAuthenticated || loginProviders == null || !loginProviders.Any())
+            {
+            }
+            else
+            {
+              using (Html.BeginForm("ExternalLogin", "Account"))
+              {
+                foreach (AuthenticationDescription p in loginProviders)
+                {
+            <div class="col-md-6 center" style="margin-top: 20px;">
+              <a class="btn btn-md btn-primary col-md-12 bntExternalLogin" title="Login using your @p.Caption account" onclick="OpenModalExternalLogin('@(Url.Action("ExternalLogin", "Account", new {provider = p.AuthenticationType, isModal = true}))');">
+                @p.AuthenticationType
+              </a>
+            </div>
+                }
+              }
+            }
+            </div>
+
+            <div class="col-md-12" style="margin-top: 20px;">
+              <a style="margin-top: 109px; width: 100%;" id="btnStep3" class="col-md-12 btn btn-primary" onclick="ButtonStep3Click();">Book now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    @*FOURTH STEP*@
+    <div class="widget step" id="bookingStep4" style="display: none;">
+      <div class="widget-head">
+        <div style="width: 25%; float: left;">
+          <div style="margin-top: 13px;">
+            <i class="fa fa-arrow-left" style="cursor: pointer; font-size: 18px; color: gray;" onclick="SetStep(3);"></i>
+          </div>
+        </div>
+        <div class="center" style="width: 50%; float: left;">
+          @("Step 4 of 4")
+          <br />
+          @("Review")
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          <div style="height: 400px; overflow-y: auto; overflow-x: hidden; margin-bottom: 17px;">
+            <div class="row" style="padding: 10px 0; border-bottom: 1px solid gray;">
+              <div class="col-md-9 modalHeader">My treatment</div>
+              <div class="col-md-9 modalSubHeader" id="step4TreatmentTitle"></div>
+              <div class="col-md-3 modalSubHeader" id="step4TreatmentPrice"></div>
+              <div class="col-md-9" id="step4TreatmentDescription"></div>
+            </div>
+            <div class="row" style="padding: 10px 0; border-bottom: 1px solid gray;">
+              <div class="col-md-9 modalHeader">Time and location</div>
+              <div class="col-md-9 modalSubHeader" id="step4LocationName"></div>
+              <div class="col-md-9" id="step4LocationAddress"></div>
+              <div class="col-md-9 modalSubHeader">Date and time</div>
+              <div class="col-md-9" id="step4DateAndTime"></div>
+            </div>
+            <div class="row" style="padding: 10px 0; border-bottom: 1px solid gray;">
+              <div class="col-md-9 modalHeader">My details</div>
+              <div class="col-md-9" id="step4FullName"></div>
+              <div class="col-md-9" id="step4Email"></div>
+              <div class="col-md-9" id="step4Mobile"></div>
+            </div>
+            <div class="row" style="padding: 10px 0; border-bottom: 1px solid gray;">
+              <div class="col-md-9 modalHeader">
+                <strong>Your total</strong>
+              </div>
+              <div class="col-md-3 modalHeader" id="step4TotalPrice"></div>
+            </div>
+          </div>
+          <div class="row" style="bottom: 0; position: relative;">
+            <div class="col-md-12">
+              <a class="col-md-12 btn btn-primary" onclick="CreateBookingAsync();" style="width: 100%;">Confirm</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @*FIVETH STEP*@
+    <div class="widget step" id="bookingStep5" style="display: none;">
+      <div class="widget-head">
+        <div style="width: 25%; float: left;">
+          <div style="margin-top: 13px;">
+            <i class="fa fa-arrow-left" style="cursor: pointer; font-size: 18px; color: gray;" onclick="SetStep(4);"></i>
+          </div>
+        </div>
+        <div class="center" style="width: 50%; float: left;">
+          @("Step 4 of 4")
+          <br />
+          @("Payment method")
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          <div class="row" style="padding: 10px 0; border-bottom: 1px solid gray;">
+            <div class="col-md-12 modalSubHeader text-center">
+              Creating booking, please wait...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @*SIXTH STEP*@
+    <div class="widget step" id="bookingStep6" style="display: none;">
+      <div class="widget-head">
+        <div style="width: 25%; float: left;">
+          <div style="margin-top: 13px;">
+            <i class="fa fa-arrow-left" style="cursor: pointer; font-size: 18px; color: gray;" onclick="SetStep(4);"></i>
+          </div>
+        </div>
+        <div class="center" style="width: 50%; float: left;">
+          @("Step 4 of 4")
+          <br />
+          @("Payment method")
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          <div class="row">
+            <!-- Bootstrap inspired Braintree Hosted Fields example -->
+            <div class="form-group col-md-12">
+              <label class="control-label">Card Number</label>
+              <!-- Hosted Fields div container -->
+              <div class="form-control" id="card-number"></div>
+              <span class="helper-text"></span>
+            </div>
+            <div class="col-md-12">
+              <label class="control-label" style="width: 100%; display: block;">Expiration Date</label>
+              <div style="float: left; width: 45%;" class="form-control" id="expiration-month">
+              </div>
+              <div style="float: right; width: 45%;" class="form-control" id="expiration-year">
+                <!-- Hosted Fields div container -->
+              </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="form-group col-md-6">
+              <label class="control-label">Security Code</label>
+              <!-- Hosted Fields div container -->
+              <div class="form-control" id="cvv"></div>
+            </div>
+            <div class="col-md-offset-2 col-md-8 text-center">
+              <a id="btnSubmit" class="btn btn-success btn-lg center-block">Pay with <span id="card-type">Card</span></a>
+            </div>
+            <div class="col-md-12 center" style="margin-top: 25px;">
+              <span style="color: lightgray; font-size: 18px;">OR PAY WITH</span>
+            </div>
+            <div class="col-md-offset-2 col-md-8 text-center" style="margin-top: 20px;">
+              <a class="btn btn-info btn-lg center-block" href="#" id="paypal-button">Paypal</a>
+            </div>
+            <input type="hidden" name="payload" id="hdnCardPayload" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @*SEVENTH STEP*@
+    <div class="widget step" id="bookingStep7" style="display: none;">
+      <div class="widget-head">
+        <div class="col-md-12 text-center">
+          @("Step 4 of 4")
+          <br />
+          @("Complete")
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="widget-content">
+        <div class="padd">
+          <div class="row" style="font-style: italic;">
+            <div class="col-lg-12 text-center">
+              <b style="font-size: 24px; color: green;">Thank you,</b>
+            </div>
+            <div class="col-lg-12 text-center">
+              <b style="font-size: 24px; color: green;">your booking is complete!</b>
+            </div>
+            <div class="col-xs-12 text-center">
+              You will recieve an email confirmation of your appointment shortly.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

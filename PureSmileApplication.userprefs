@@ -1,0 +1,16 @@
+﻿<Properties StartupConfiguration="{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}|">
+  <MonoDevelop.Ide.ItemProperties.PureSmileUI PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="PureSmileUI/Views/Notification/NotificationListView.cshtml">
+    <Files>
+      <File FileName="PureSmileUI/Views/Booking/ModalBookingEdit.cshtml" Line="335" Column="61" />
+      <File FileName="PureSmileUI/Content/themes/base/style.css" Line="2424" Column="18" />
+      <File FileName="PureSmileUI/Views/Notification/NotificationListView.cshtml" Line="39" Column="65" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

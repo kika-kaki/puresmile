@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="17px" height="17px" viewBox="0 0 17 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
+    <title>9FA388AF-3357-4D55-9311-B99E701F3757</title>
+    <desc>Created with sketchtool.</desc>
+    <defs></defs>
+    <g id="booking-process" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="spritesheet-booking" transform="translate(-525.000000, -606.000000)" fill="#5B646B">
+            <path d="M532.107573,613.849242 L522.607573,613.849242 L522.607573,615.849242 L532.107573,615.849242 L532.107573,625.349242 L534.107573,625.349242 L534.107573,615.849242 L543.607573,615.849242 L543.607573,613.849242 L534.107573,613.849242 L534.107573,604.349242 L532.107573,604.349242 L532.107573,613.849242 Z" id="btn_close" transform="translate(533.107573, 614.849242) rotate(-315.000000) translate(-533.107573, -614.849242) "></path>
+        </g>
+    </g>
+</svg>

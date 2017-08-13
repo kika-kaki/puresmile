@@ -1,0 +1,24 @@
+﻿@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/userBookingList.js")"></script>
+}
+@{
+    ViewBag.Title = "My booking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="page-head">
+    <h2 class="pull-left">
+        My bookings
+    </h2>
+    <div class="pull-right">
+      <a class="btn btn-primary btn-sm" href="~/Booking/Edit/0">Add</a>
+      <a class="btn btn-info btn-sm" href="~/Booking/ModalBookingEdit/0">Add modal</a>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+    <div class="table-responsive">
+        <table class="table-condensed" id="jqGrid"></table>
+        <div id="pager"></div>
+    </div>
+</div>

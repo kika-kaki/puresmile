@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Pure Smile</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico?v=3" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico?v=3" type="image/x-icon" />
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqGrid")
+    @RenderSection("scripts", required: false)
+    @RenderSection("head", false)
+</head>
+<body>
+    <div class="navbar navbar-fixed-top bs-docs-nav">
+        <div class="container">
+            <div class="collapse navbar-collapse bs-navbar-collapse">
+                <img id="img_logo" alt="Logo" src="@Url.Content("~/Content/images/PureSmile_logo.svg")" width="120" height="60">
+                @{ Html.RenderPartial("_LoginPartial", (bool)ViewBag.IsBookingUrl); }
+            </div>
+        </div>
+    </div>
+    <header>
+        <div class="container">
+            <div class="row">
+            </div>
+        </div>
+    </header>
+    <div class="content">
+        <div class="sidebar">
+            <div class="sidebar-dropdown" onclick="$('#nav').toggle();"><a href="#">Navigation</a></div>
+            <ul id="nav">
+                <li><a href="~/Booking/UserBookingList"><i class="fa fa-shopping-cart"></i>Bookings</a></li>
+                <li><a href="~/Notification/NotificationList"><i class="fa fa-envelope-o"></i>Notification</a></li>
+            </ul>
+        </div>
+        <div class="mainbar">
+            @RenderBody()
+            <div class="horizontal-links">
+                <a href="~/Home/About">Home</a> | <a href="~/Home/Contact">Contact us</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

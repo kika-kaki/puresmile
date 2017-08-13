@@ -1,0 +1,25 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+  <br/>
+  @if (!User.Identity.IsAuthenticated)
+  {
+    <p class="lead">Login, please.</p>
+    @Html.ActionLink("Add booking", "ModalBookingEdit", "Booking", new {id = 0}, new {@class = "btn btn-sm btn-info"})
+  }
+</div>
+
+<script type="text/javascript">
+  @if (ViewBag.isModal != null && (bool) ViewBag.isModal && User.Identity.IsAuthenticated)
+  {
+    <text>
+  if (opener && opener.ExternalLoggedIn)
+  {
+    opener.ExternalLoggedIn(@(User.Identity.GetUserId<int>()));
+  }    
+    </text>
+  }
+</script>

@@ -1,0 +1,152 @@
+﻿@model PureSmileUI.Models.Dto.UserEditItem
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/userEdit.js")"></script>
+}
+
+<div class="page-head">
+    <h2 class="pull-left">
+        @if (Model.Id == 0)
+        {
+            @("Create user");
+        }
+        else
+        {
+            @("Edit user \"" + Model.UserName + "\"");
+        }
+    </h2>
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+  @using (Html.BeginForm())
+  {
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+      <hr/>
+      @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+      @Html.HiddenFor(model => model.Id)
+
+      <div class="form-group">
+        @Html.LabelFor(model => model.UserName, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @Html.EditorFor(model => model.UserName, new {htmlAttributes = new {@class = "form-control"}})
+          @Html.ValidationMessageFor(model => model.UserName, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.Type, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @if (Model.Id == 0)
+          {
+            <input type="radio" value="Client" checked="checked" name="Type" id="rbClient"/>
+            <label for="rbClient">Client</label><br/>
+            <input type="radio" value="SuperUser" name="Type" id="rbAdmin"/>
+            <label for="rbAdmin">SuperUser</label>
+            <input type="radio" value="Staff" name="Type" id="rbStaff"/>
+            <label for="rbStaff">Staff</label>
+          }
+          else
+          {
+            <input type="radio" value="Client" @(Model.Type == "Client" ? "checked='checked'" : "") name="Type" id="rbClient"/>
+            <label for="rbClient">Client</label><br/>
+            <input type="radio" value="SuperUser" @(Model.Type == "SuperUser" ? "checked='checked'" : "") name="Type" id="rbAdmin"/>
+            <label for="rbAdmin">Admin</label>
+            <input type="radio" value="Staff" @(Model.Type == "Staff" ? "checked='checked'" : "") name="Type" id="rbStaff"/>
+            <label for="rbStaff">Staff</label>
+          }
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.ClientData.FirstName, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @Html.EditorFor(model => model.ClientData.FirstName, new {htmlAttributes = new {@class = "form-control"}})
+          @Html.ValidationMessageFor(model => model.ClientData.FirstName, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.ClientData.LastName, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @Html.EditorFor(model => model.ClientData.LastName, new {htmlAttributes = new {@class = "form-control"}})
+          @Html.ValidationMessageFor(model => model.ClientData.LastName, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.Email, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @Html.EditorFor(model => model.Email, new {htmlAttributes = new {@class = "form-control"}})
+          @Html.ValidationMessageFor(model => model.Email, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          @Html.CheckBoxFor(m => m.EmailConfirmed)
+          @Html.LabelFor(m => m.EmailConfirmed)
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.City, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @Html.EditorFor(model => model.City, new {htmlAttributes = new {@class = "form-control"}})
+          @Html.ValidationMessageFor(model => model.City, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.PhoneNumber, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          @Html.EditorFor(model => model.PhoneNumber, new {htmlAttributes = new {@class = "form-control"}})
+          @Html.ValidationMessageFor(model => model.PhoneNumber, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          @Html.CheckBoxFor(m => m.PhoneNumberConfirmed)
+          @Html.LabelFor(m => m.PhoneNumberConfirmed)
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+          @Html.CheckBoxFor(m => m.LockoutEnabled)
+          @Html.LabelFor(m => m.LockoutEnabled)
+        </div>
+      </div>
+      <div class="form-group">
+        @Html.LabelFor(model => model.LockoutEndDateUtc, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+          <div id="datetimepicker1" class="input-append input-group dtpicker">
+            @Html.EditorFor(model => model.LockoutEndDateUtc, new
+            {
+              htmlAttributes = new Dictionary<string, Object> {{"class", "form-control"}, {"data-format", "yyyy-MM-dd"}}
+            })
+            <span class="input-group-addon add-on">
+                            <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                        </span>
+          </div>
+          @Html.ValidationMessageFor(model => model.LockoutEndDateUtc, "", new {@class = "text-danger"})
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+          <input id="btnSave" type="submit" class="btn btn-sm btn-primary" value="Save">
+          <span></span>
+          @Html.ActionLink("Cancel", "Cancel", new {id = Model.Id}, new {@class = "btn btn-sm btn-default"})
+        </div>
+      </div>
+    </div>
+  }
+</div>
+@if (!User.IsInRole("SuperUser"))
+{
+  <script type="text/javascript">
+    $(function() {
+      $("input").addClass("disabled").attr("disabled", '');
+      $(".input-group-addon").hide();
+      $("#btnSave").hide();
+    });
+  </script>
+}

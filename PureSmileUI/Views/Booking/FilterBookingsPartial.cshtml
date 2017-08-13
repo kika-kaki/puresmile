@@ -1,0 +1,52 @@
+﻿@Scripts.Render("~/AppScripts/FilterBookingList.js")
+
+
+<style type="text/css">
+    .bootstrap-datetimepicker-widget > ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .input-group[class*="col-"] {
+        float: none;
+        padding-left: 15px !important;
+        padding-right: 0;
+    }
+</style>
+
+<div class="">
+    <div class="widget booking-search-filter form-horizontal ">
+        <div class="widget-head">
+            <div class="pull-left">Filters</div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="widget-content">
+            <div class="booking-filter-block1 booking-filter-block "><label class="control-label">Text</label><input type="text" id="txtSearch" class="form-control " placeholder="search in e-mail,tretment or clinic" /></div>
+            <div class="booking-filter-block2 booking-filter-block bookings-paid-status"><label class="control-label">Paid status</label><br/><div class="booking-filter-block2-inner"><input type="radio" id="rdbDefault" name="paid-status" checked="checked" />Any<input type="radio" id="rdbPaid" name="paid-status" />Paid<input type="radio" id="rdbNotPaid" name="paid-status" />Not paid</div></div>
+            <div class="booking-filter-block3 booking-filter-block ">
+                <label class="control-label">Book date</label><br />
+                <div id="datetimepickerBookDate" style="padding-left:0 !important;" class="input-append input-group dtpicker booking-date-picker">
+                    <input type="text" id="txtBookDate" class="form-control" data-format="yyyy-MM-dd" placeholder="select booking date" />
+                    <span class="input-group-addon add-on">
+                        <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <tr>
+                        <td class="va-center form-group text-center">
+                            <div>
+                                <div class="">
+                                    <a href="#" class="btn btn-info btn-sm" onclick="Search(); return false;">Search</a>
+                                    <a href="#" class="btn btn-default btn-sm" onclick="Clear(); return false;">Clear</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+﻿@model string 
+
+@{
+    var splittedDescription = Model.Split(' ');
+    
+    var firstPart = string.Join(" ", splittedDescription.Take(30)) + "...";
+}
+
+<p class="treatment-description-body">
+    @if (splittedDescription.Count() > 30)
+	{
+        <span class="shortened">
+            @firstPart <a onclick="expandWholeDescription(this);" style="cursor:pointer">Read more</a>
+        </span>
+    }
+    
+    <span class="full" style="@(splittedDescription.Count() > 30 ? "display:none" : string.Empty)">
+        @Model
+        @if (splittedDescription.Count() > 30)
+        {
+            <a onclick="collapseWholeDescription(this);" style="cursor:pointer">Read less</a>
+        }
+    </span>
+
+    @if (splittedDescription.Count() > 30)
+	{
+        <script>
+            function expandWholeDescription(obj) {
+                var container = $(obj).closest('.treatment-description-body');
+                container.find('.shortened').css('display', 'none');
+                container.find('.full').css('display', 'inline');
+            }
+
+            function collapseWholeDescription(obj) {
+                var container = $(obj).closest('.treatment-description-body');
+                container.find('.shortened').css('display', 'inline');
+                container.find('.full').css('display', 'none');
+            }
+        </script>
+    }
+</p>

@@ -1,0 +1,335 @@
+﻿@using DatabaseContext.Models.Enums
+@model PureSmileUI.Models.Dto.BookingEditItem
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section Scripts
+{
+    <script type="text/javascript">
+      var GetTimeListLink = '@Url.Action("GetTimeList", "Booking")';
+    </script>
+    <script src="@Url.Content("~/AppScripts/bookingEdit.js")"></script>
+    <script src="@Url.Content("~/AppScripts/adminPaymentsList.js")"></script>
+}
+
+<div class="page-head">
+    <h2 class="pull-left">
+        @if (Model.Id == 0)
+        {
+            @("Create booking");
+        }
+        else
+        {
+            @("Edit booking");
+        }
+    </h2>
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+    <div class="col-md-5 col-md-offset-3">
+        <div class="widget">
+            <div class="widget-head">
+                <div class="pull-left">
+                    @if (Model.Id == 0)
+                    {
+                        @("New booking");
+                    }
+                    else
+                    {
+                        @("Booking #" + Model.Id);
+                    }
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="widget-content">
+                <div class="padd">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-horizontal">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.Id)
+                            @Html.HiddenFor(model => model.UserId)
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.UserId, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(m => m.UserId, new SelectList(Model.UserList, "Id", "Name"),
+                                        new { @class = "form-control", @onchange = "fillClientData(this.value)", @id = "ddlUserId" })
+                                    <br />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TreatmentId, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(m => m.TreatmentId, new SelectList(Model.TreatmentList, "Id", "Name"),
+                                        new { @class = "form-control" })
+                                    <br />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control", @id = "txtFirstName" } })
+                                    @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control", @id = "txtLastName" } })
+                                    @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ClientEmail, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.ClientEmail, new { htmlAttributes = new { @class = "form-control", @id = "txtClientEmail" } })
+                                    @Html.ValidationMessageFor(model => model.ClientEmail, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ClientPhone, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.ClientPhone, new { htmlAttributes = new { @class = "form-control", @id = "txtClientPhone" } })
+                                    @Html.ValidationMessageFor(model => model.ClientPhone, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ClinicId, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @foreach (var location in Model.ClinicList)
+                                    {
+                                        <div class="col-md-9">
+                                            @Html.RadioButtonFor(m => m.ClinicId, location.Id, new { @id = "bookClinic", @onchange = "getPossibleBookList()" })
+                                            @Html.Label(location.Name)
+                                        </div>
+                                    }
+                                    <div class="col-md-9">
+                                        @Html.ValidationMessageFor(model => model.ClinicId, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.BookDate, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    <div id="datetimepicker1" class="input-append input-group dtpicker">
+                                        @Html.EditorFor(model => model.BookDate, new
+                                        {
+                                          htmlAttributes = new Dictionary<string, Object> { { "class", "form-control" },
+                                              { "id", "bookDate" }, { "data-format", "yyyy-MM-dd" } }
+                                        })
+                                        <span class="input-group-addon add-on">
+                                            <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                                        </span>
+                                    </div>
+                                    @Html.ValidationMessageFor(model => model.BookDate, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.BookTime, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(m => m.BookTime, new SelectList(Model.TimeList, "Id", "Name"),
+                                            new { @class = "form-control", @id = "bookTime" })
+                                    @Html.ValidationMessageFor(model => model.BookTime, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessage("Error", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Comments, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.Comments, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ApproveKey, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.ApproveKey, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DeclineKey, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                    @Html.EditorFor(model => model.DeclineKey, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                                </div>
+                            </div>
+                          <div class="form-group">
+                            @Html.LabelFor(model => model.StaffComments, htmlAttributes: new {@class = "control-label col-md-3"})
+                            <div class="col-md-9">
+                              @Html.TextAreaFor(model => model.StaffComments, htmlAttributes: new {@class = "form-control"})
+                            </div>
+                          </div>
+
+                          @if (Model.IsPaid)
+                          {
+                            if (Model.Status == BookingStatusEnum.Completed)
+                            {
+                              <div class="form-group">
+                                @Html.LabelFor(model => model.PaidToClinicOn, htmlAttributes: new {@class = "control-label col-md-3"})
+                                <div class="col-md-5">
+                                  <div id="datetimepicker2" class="input-append input-group dtpicker">
+                                    @Html.EditorFor(model => model.PaidToClinicOn, new
+                                    {
+                                      htmlAttributes = new Dictionary<string, Object>
+                                      {
+                                        {"class", "form-control"},
+                                        {"id", "bookDate"}, {"data-format", "yyyy-MM-dd"}
+                                      }
+                                    })
+                                    <span class="input-group-addon add-on">
+                                      <i data-time-icon="fa fa-times" data-date-icon="fa fa-calendar" class="fa fa-calendar"></i>
+                                    </span>
+                                  </div>
+                                  @Html.ValidationMessageFor(model => model.PaidToClinicOn, "", new {@class = "text-danger"})
+                                </div>
+                                <div class="col-md-3">
+                                  <input class="btn btn-sm btn-info" type="submit" formaction="@Url.Action("Completed", "Booking", null, Request.Url.Scheme)" value="Completed"/>
+                                </div>
+                              </div>
+                            }
+                            if (Model.Status == BookingStatusEnum.PaidToCLinic)
+                            {
+                              <div class="form-group">
+                                @Html.LabelFor(model => model.PaidToClinicUserName, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-9">
+                                  @Html.EditorFor(model => model.PaidToClinicUserName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                @Html.LabelFor(model => model.PaidToClinicOn, htmlAttributes: new {@class = "control-label col-md-3"})
+                                <div class="col-md-6">
+                                  @Html.EditorFor(model => model.PaidToClinicOn, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                                </div>
+                                <div class="col-md-3">
+                                  <input type="submit" class="btn btn-sm btn-danger" formaction="@Url.Action("Undo", "Booking", null, Request.Url.Scheme)" value="Undo"/>
+                                </div>
+                              </div>
+                            }
+                          }
+
+                          @if (Model.Id == 0)
+                            {
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.IsPaid, htmlAttributes: new { @class = "control-label col-md-3" })
+                                    <div class="col-md-9">
+                                        @Html.CheckBoxFor(model => model.IsPaid, htmlAttributes: new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="form-group">
+                                <label class="col-md-3 control-label"></label>
+                                <div class="col-md-9">
+                                    @if (Model.Status != BookingStatusEnum.DeclinedByClient)
+                                    {
+                                      if (!Model.IsPaid)
+                                      {
+                                        <input type="submit" class="btn btn-sm btn-primary" value="Save" formaction="Edit">
+                                      }
+                                      if (!Model.IsPaid && Model.Id != 0)
+                                        {
+                                            <text>
+                                                @Html.ActionLink("Payment received", "PaymentReceived", new { id = Model.Id }, new { @class = "btn btn-info btn-sm", onclick = string.Format("return confirm('Have you received payment from {0} {1}?');", @Model.FirstName, @Model.LastName) })
+                                                <span></span>
+                                                @Html.ActionLink("Delete", "Delete", new {id = Model.Id}, new {@class = "btn btn-info {0} btn-sm", onclick = Model.HasPayments ? "alert('Unable to delete booking with payment history'); return false;" : string.Empty})
+                                            </text>
+                                        }
+                                        <text>
+                                            @if (!Model.IsPaid && Model.Id != 0)
+                                            {
+                                                <span></span>
+                                                @Html.ActionLink("Cancel", "Cancel", new { id = Model.Id }, new { @class = "btn btn-danger btn-sm", onclick = "return confirm('Do you really want to cancel the booking?');" })
+                                            }
+                                            <span></span>
+                                            @if (User.IsInRole("SuperUser"))
+                                            {
+                                                <a class="btn btn-danger btn-sm" onclick="ShowRefundDialog();">Refund</a>
+                                            }
+                                            @Html.EditorFor(model => model.RefundSum, new { htmlAttributes = new { @class = "form-control hidden" } })
+                                            <input type="submit" formaction="@Url.Action("Refund", "Booking", null, Request.Url.Scheme)" value="Confirm refund" class="hidden" id="btnRefund" />
+                                        </text>
+                                        @Html.ActionLink("Back", "AdminBookingList", null, new { @class = "btn btn-default btn-sm" })
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="dlgRefund" style="display: none;">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th colspan="2">Enter sum to refund</th>
+                                </tr>
+                                <tr>
+                                    <td class="va-center">Sum:</td>
+                                    <td><input type="text" class="form-control text-right" id="txtRefundSum" /></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <input type="button" class="btn btn-danger btn-sm" onclick="ConfirmRefund(); return false;" value="Refund">
+                                        <a onclick="$('#dlgRefund').dialog('close');" class="btn btn-default btn-sm">Cancel</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="dlgConfirmRefund" style="display: none;">
+                            <table class="table table-hover">
+                                <tr>
+                                    <td>Please confirm the refund for <b>$<span class="bConfirmSumm"></span></b> to @Model.FirstName, @Model.LastName?</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <input type="button" value="Confirm refund" class="btn btn-danger btn-sm" onclick="$('#btnRefund').click();" />
+                                        <a onclick="$('#dlgConfirmRefund').dialog('close'); $('#dlgRefund').dialog('close');" class="btn btn-default btn-sm">Cancel</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div id="dlgConfirmOverRefund" style="display: none;">
+                            <table class="table table-hover">
+                                <tr>
+                                    <td>
+                                        You are going to refund more than you have received for this booking (incl. previous refunds if any).
+                                        <br /><br />Please confirm this refund for <b>$<span class="bConfirmSumm"></span></b>.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <input type="button" value="Confirm refund" class="btn btn-danger btn-sm" onclick="$('#btnRefund').click();" />
+                                        <a onclick="$('#dlgConfirmOverRefund').dialog('close'); $('#dlgRefund').dialog('close');" class="btn btn-default btn-sm">Cancel</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model.Id != 0)
+    {
+        <div class="clearfix"></div>
+        <div class="widget">
+            <div class="widget-head">
+                <div class="pull-left">Payments</div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="widget-content">
+                <div class="table-responsive">
+                    <table id="jqGrid" class="table table-hover table-bordered"></table>
+                    <div id="pager"></div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+  var maxAmountToRefund = '@(ViewBag.MaxAmountToRefund != null ? ViewBag.MaxAmountToRefund : "0")';
+  var bookingListUrl = '@(Url.Action("GetAdminPaymentsList", "Payments", new {id = Model.Id}))';
+  var id = @Model.Id;
+</script>

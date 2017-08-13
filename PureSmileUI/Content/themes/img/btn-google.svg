@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="213px" height="50px" viewBox="0 0 213 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 41.2 (35397) - http://www.bohemiancoding.com/sketch -->
+    <title>CDECBA51-CF4A-40FB-B70D-7B7E00D21863</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="213" height="50" rx="3"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="213" height="50" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="booking-process" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="spritesheet-booking" transform="translate(-137.000000, -294.000000)">
+            <g id="btn_google" transform="translate(137.000000, 294.000000)">
+                <use id="Rectangle-4" stroke="#4584F2" mask="url(#mask-2)" stroke-width="2" fill="#4184F2" xlink:href="#path-1"></use>
+                <path d="M51.5,9.5 L51.5,41.5" id="Line" stroke="#000000" stroke-linecap="square" opacity="0.162604944"></path>
+                <path d="M27.5171265,26.6685913 L32.64593,26.6685913 C31.745656,29.2136068 29.3072873,31.0384211 26.4530768,31.0174678 C22.98961,30.9919478 20.1255497,28.2212818 19.9912339,24.7602326 C19.8471579,21.0504307 22.8234166,17.9860608 26.5016991,17.9860608 C28.1837805,17.9860608 29.7186517,18.6271948 30.8757375,19.6771861 C31.1499207,19.9259389 31.5669265,19.9276402 31.836543,19.6736939 L33.7204562,17.9009941 C34.0150555,17.6236768 34.0160405,17.1552729 33.7222471,16.8772392 C31.8873144,15.1384766 29.4255747,14.0548168 26.7108736,14.001986 C20.9209678,13.888713 16.0404694,18.6358806 16.0002642,24.4268609 C15.9593427,30.2615386 20.6767817,35.0038708 26.5016991,35.0038708 C32.1038315,35.0038708 36.6799703,30.6176545 36.9863893,25.0925299 C36.9944483,25.0232229 37,22.6821884 37,22.6821884 L27.5171265,22.6821884 C27.1285061,22.6821884 26.8134013,22.9972932 26.8134013,23.3859135 L26.8134013,25.9648661 C26.8134013,26.3534865 27.1285061,26.6685913 27.5171265,26.6685913 L27.5171265,26.6685913 Z" id="Fill-1" fill="#FFFFFF"></path>
+                <text id="Sign-with-Google" font-family="OpenSans, Open Sans" font-size="14" font-weight="normal" fill="#FFFFFF">
+                    <tspan x="67.1035156" y="31">Sign with Google</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>

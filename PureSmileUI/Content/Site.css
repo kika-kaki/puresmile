@@ -1,0 +1,55 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default 
+input,
+select,
+textarea {
+    max-width: 280px;
+}*/
+
+
+.table tbody>tr>td.va-center{
+    vertical-align: middle;
+}
+.table tbody > tr > td.va-center label {
+  margin: 0;
+}
+
+.roundBorder{height: 75px;width: 75px;border-radius: 40px;border: 1px solid gray;overflow: hidden;}
+.roundBorder img {max-height: 75px;max-width: 75px;padding: 0;margin: 0;}
+.modalHeader{font-size: 18px;font-weight: bold;}
+.modalSubHeader{font-size: 14px;font-weight: bold;}
+
+.step{ height: 540px;}
+.step .padd{height: 477px;}
+
+.btn[disabled] {
+    color: Gray !important;
+    background-color: #e0e0e0 !important;
+    border-color: Gray !important;
+}
+
+
+/*make disabled days visible*/
+.datepicker table tr td.disabled,
+.datepicker table tr td.disabled:hover {
+  background: none;
+  color: lightgrey !important;
+  cursor: default;
+}

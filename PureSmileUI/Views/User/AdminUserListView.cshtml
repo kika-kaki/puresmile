@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "All users";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section Scripts
+{
+    <script src="@Url.Content("~/AppScripts/userList.js")"></script>
+}
+
+<div class="page-head">
+    <h2 class="pull-left">
+        All users
+    </h2>
+    <div class="pull-right">
+        <a class="btn btn-primary btn-sm" href="~/User/Edit/0">Add</a>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="matter">
+    <div class="table-responsive">
+        <table id="jqGrid" class="table-condensed"></table>
+        <div id="pager"></div>
+    </div>
+</div>
