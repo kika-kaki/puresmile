@@ -1,10 +1,11 @@
 ﻿<Properties StartupConfiguration="{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}|">
   <MonoDevelop.Ide.ItemProperties.PureSmileUI PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="PureSmileUI/Views/Notification/NotificationListView.cshtml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DatabaseContext/Managers/ApplicationRoleManager.cs">
     <Files>
       <File FileName="PureSmileUI/Views/Booking/ModalBookingEdit.cshtml" Line="335" Column="61" />
-      <File FileName="PureSmileUI/Content/themes/base/style.css" Line="2424" Column="18" />
-      <File FileName="PureSmileUI/Views/Notification/NotificationListView.cshtml" Line="39" Column="65" />
+      <File FileName="PureSmileUI/Content/themes/base/style.css" Line="2417" Column="2" />
+      <File FileName="PureSmileUI/Views/Notification/NotificationListView.cshtml" Line="28" Column="50" />
+      <File FileName="DatabaseContext/Managers/ApplicationRoleManager.cs" Line="9" Column="30" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
