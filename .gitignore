@@ -1,0 +1,8 @@
+DatabaseContext/
+MailService/
+PureSmileUI/bin/
+PureSmileUI/obj
+*.dll
+*.pdb
+*.xml
+*.txt
