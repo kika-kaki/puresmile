@@ -485,8 +485,9 @@ function getSelectedTreatmentCategory() {
     return parseInt($("#jsTreatment" + $("#treatmentId").val()).attr("data-treatment-category"), 10);
 }
 
-function ValidateStep3() {
+function ValidateStep3(elm) {
     var isValid = true;
+    console.log('Validate', elm);
 
     $("#btnStep3").attr("disabled", true);
     if ($.trim($("#FirstName").val()) === '') {

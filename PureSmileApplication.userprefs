@@ -1,16 +1,17 @@
 ﻿<Properties StartupConfiguration="{9AEDB005-DBC6-4DB7-AF34-3704A9CD0FF0}|">
   <MonoDevelop.Ide.ItemProperties.PureSmileUI PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="PureSmileUI/Views/Shared/_LoginPartial.cshtml">
+  <MonoDevelop.Ide.Workbench ActiveDocument="PureSmileUI/AppScripts/modalBookingEdit.js">
     <Files>
-      <File FileName="PureSmileUI/Views/Booking/ModalBookingEdit.cshtml" Line="365" Column="77" />
-      <File FileName="PureSmileUI/Content/themes/base/style.css" Line="2630" Column="21" />
-      <File FileName="PureSmileUI/Views/Notification/NotificationListView.cshtml" Line="39" Column="64" />
+      <File FileName="PureSmileUI/Views/Booking/ModalBookingEdit.cshtml" Line="422" Column="61" />
+      <File FileName="PureSmileUI/Content/themes/base/style.css" Line="2626" Column="27" />
+      <File FileName="PureSmileUI/Views/Notification/NotificationListView.cshtml" Line="1" Column="1" />
       <File FileName="PureSmileUI/Controllers/BookingController.cs" Line="117" Column="14" />
       <File FileName="PureSmileUI/obj/Debug/AspnetCompileMerge/Source/Views/Booking/ModalBookingEdit.cshtml" Line="433" Column="36" />
       <File FileName="PureSmileUI/Views/Booking/BookingEditView.cshtml" Line="1" Column="1" />
       <File FileName="PureSmileUI/Views/Booking/BookingStep2.cshtml" Line="1" Column="1" />
       <File FileName="PureSmileUI/Views/Booking/BookingLoading.cshtml" Line="10" Column="4" />
-      <File FileName="PureSmileUI/Views/Shared/_LoginPartial.cshtml" Line="11" Column="50" />
+      <File FileName="PureSmileUI/Views/Shared/_LoginPartial.cshtml" Line="33" Column="1" />
+      <File FileName="PureSmileUI/AppScripts/modalBookingEdit.js" Line="488" Column="23" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
