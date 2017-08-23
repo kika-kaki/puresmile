@@ -383,7 +383,7 @@
                     </ul>
                     <div class="modal-header-replacer"></div>
                     <div class="modal-footer btn-confirm-div">
-                        <a style="width: 100%;" id="cmdSelectDetails" class="btn btn-confirm" disabled data-toggle="modal" onclick="OnEnterDetails();">Make a booking</a>
+                        <a style="width: 100%;" id="cmdSelectDetails" class="btn btn-confirm" disabled="disabled" data-toggle="modal" onclick="OnEnterDetails();">Make a booking</a>
                     </div>
                 </div>
 
@@ -415,9 +415,9 @@
                                     @Html.EditorFor(model => model.FirstName, new
                                {
                                    htmlAttributes = new Dictionary<string, Object>
-                                      {
-                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}
-                                      }
+                                              {
+                                                {"class", "text-input"}, {"onblur", "ValidateStep3(this);" }, {"autofocus", "true"}
+                                              }
                                })
                                     <div class="FirstNameErr details-error">
 
@@ -429,12 +429,10 @@
                                {
                                    htmlAttributes = new Dictionary<string, Object>
                                       {
-                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}
+                                        {"class", "text-input"}, {"onblur", "ValidateStep3(this);"}
                                       }
                                })
-                                    <div class="LastNameErr details-error">
-
-                                    </div>
+                                    <div class="LastNameErr details-error"></div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -443,12 +441,10 @@
                            {
                                htmlAttributes = new Dictionary<string, Object>
                                       {
-                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}
+                                        {"class", "text-input"}, {"onblur", "ValidateStep3(this);"}
                                       }
                            })
-                                <div class="ClientEmailErr details-error">
-
-                                </div>
+                                <div class="ClientEmailErr details-error"></div>
                             </div>
                             <div class="form-group">
                                 @Html.LabelFor(model => model.ClientPhone)
@@ -456,12 +452,10 @@
                            {
                                htmlAttributes = new Dictionary<string, Object>
                                       {
-                                        {"class", "text-input"}, {"onchange", "ValidateStep3();"}, {"onkeyup", "ValidateStep3();"}
+                                        {"class", "text-input"}, {"onblur", "ValidateStep3(this);"}
                                       }
                            })
-                                <div class="ClientPhoneErr details-error">
-
-                                </div>
+                                <div class="ClientPhoneErr details-error"></div>
                             </div>
                         @*@if (!(User.Identity.IsAuthenticated || loginProviders == null || !loginProviders.Any())) {
                             <text>
@@ -495,7 +489,7 @@
 
                             @*<a style=" width 100%;" id="btnStep3" class="btn btn-confirm" onclick="ButtonStep3Click();">Book now</a>*@
 
-                            <a style="width: 100%;" id="btnStep3" class="btn btn-confirm" onclick="ButtonStep3Click();">NEXT</a>
+                            <a style="width: 100%;" id="btnStep3" class="btn btn-confirm" disabled="disabled" onclick="ButtonStep3Click();">NEXT</a>
 
                         </div>
 

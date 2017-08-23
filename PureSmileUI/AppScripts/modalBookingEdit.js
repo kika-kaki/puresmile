@@ -392,7 +392,7 @@ function OnEnterDetails() {
             treatmentId:treatmentId
         },
         success:function(resp) {
-            console.log(resp.Message.Data.StatusId);
+            console.log(resp);
 
         },
     });
@@ -487,17 +487,38 @@ function getSelectedTreatmentCategory() {
 
 function ValidateStep3(elm) {
     var isValid = true;
-    console.log('Validate', elm);
-
     $("#btnStep3").attr("disabled", true);
-    if ($.trim($("#FirstName").val()) === '') {
-        //$("#FirstName").focus();
+    if (elm) {
+        switch (elm.id) {
+            case "ClientEmail":
+                var errorField = $('.ClientEmailErr');
+                if (!validateEmail($(elm).val())) {
+                    errorField.text('Enter valid E-mail');
+                    isValid = false;
+                } else {
+                    errorField.text('');
+                }
+                break;
+            default:
+                var errorField = $('.' + elm.id + 'Err');
+                if ($.trim($(elm).val()) === '') {
+                    errorField.text('Required');
+                    isValid = false;
+                } else {
+                    errorField.text('');
+                }
+                break;
+        }
+    }
+    
+
+    
+    /*if ($.trim($("#FirstName").val()) === '') {
         $('.FirstNameErr').text('Required');
         isValid = false;
     } else $('.FirstNameErr').text('');
 
     if ($.trim($("#LastName").val()) === '') {
-        //$("#LastName").focus();
         $('.LastNameErr').text('Required');
         isValid = false;
     } else $('.LastNameErr').text('');
@@ -512,12 +533,11 @@ function ValidateStep3(elm) {
         isValid = false;
     } else $('.ClientEmailErr').text('');
 
-    if ($.trim($("#ClientPhone").val()) === '' /*&& isNaN(data.PhoneNumber)*/) {
-        //$("#ClientPhone").focus();
+    if ($.trim($("#ClientPhone").val()) === '') {
         $('.ClientPhoneErr').text('Required');
         isValid = false;
     } else $('.ClientPhoneErr').text('');
-
+    */
     if (isValid) {
         $("#btnStep3").removeAttr("disabled");
         return true;
