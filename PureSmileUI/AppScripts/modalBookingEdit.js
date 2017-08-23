@@ -197,7 +197,7 @@ var cmdSelectTime = function (id, name, location, address) {
     });
     $('#divClinicTime_' + id).show();
     //disableConfirm();
-    enableConfirm();
+    //enableConfirm();
 
     $("#step4LocationName").text(name);
     $("#step4LocationAddress").text(address);
@@ -210,58 +210,55 @@ var cmdSelectTime = function (id, name, location, address) {
 function getPossibleBookList() {
     $.showprogress();
     $('.spinner').offset({ top: 300 });
+
     var clinicId = $('#clinicId').val();
     var date = $('#bookDate' + clinicId).val();
-    console.log(date);
-    disableConfirm();
-    var isFirstTime = $('#bookDate' + clinicId).prop("firstTime") === undefined ? true : false;
-    $('#bookDate' + clinicId).prop("firstTime", false);
+    const bookTimeElm = $('#bookTime' + clinicId);
+    const bookDateElm = $('#bookDate' + clinicId);
+    var isFirstTime = bookDateElm.prop("firstTime") === undefined ? true : false;
+    var hasFreeSlot = false;
 
+    disableConfirm();
+    
+    $('#bookDate' + clinicId).prop("firstTime", false);
     $.ajax({
         url: GetTimeListLink + "?clinic=" + clinicId + "&date=" + date + "&isFirstTime=" + isFirstTime,
         method: "GET",
         datatype: "json"
     }).done(function (data) {
-       
-        $('#bookTime' + clinicId).empty();
-        if (data.list.length === 0) {
-            $('#bookTime' + clinicId).attr("disabled", "");
-            $("#cmdSelectDetails").attr("disabled", "");
-            $("#cmdSelectDetails").prop("disabled", true);
-            $('#bookTime' + clinicId).append($('<option>', {
-                value: 0,
-                text: "No time slots"
-            }));
-        } else {
-            $('#bookTime' + clinicId).removeAttr("disabled");
-            $("#cmdSelectDetails").removeAttr("disabled");
-            $("#cmdSelectDetails").prop("disabled", false);
-            var hasFreeSlot = false;
-            $.each(data.list, function (i, item) {
-                if (!hasFreeSlot) {
-                    hasFreeSlot = !item.IsBooked;
-                }
-                $('#bookTime' + clinicId).append($('<option>', {
-                    value: item.Name,
-                    text: item.Name + (item.IsBooked ? " (reserved)" : ""),
-                    disabled: item.IsBooked
-                }));
-            });
-            if (!hasFreeSlot) {
-                disableConfirm();
-                $('#bookTime' + clinicId).append($('<option>', {
-                    value: 0,
-                    text: "All slots reserved"
-                }));
-            }
-            SetModalBookingTime($("#bookTime" + clinicId));
+        bookTimeElm.empty();
 
-            $('.time-select').selectpicker('render');
-            $('.time-select').selectpicker('refresh');
+        if (data.list.length) {
+            const countOfFreeSlots = data.list.filter(i => { return !i.IsBooked; }).length;
+            hasFreeSlot = (countOfFreeSlots > 0);
         }
 
+        if (hasFreeSlot) {
+            $.each(data.list, function (i, item) {
+                if (!item.IsBooked) {
+                    bookTimeElm.append($('<option>', {
+                        value: item.Name,
+                        text: item.Name + (item.IsBooked ? " (reserved)" : ""),
+                        disabled: item.IsBooked
+                    }));
+                }
+            });
+            bookTimeElm.removeAttr("disabled");
+            SetModalBookingTime(bookTimeElm);
+            enableConfirm();
+        } else {
+            bookTimeElm.attr("disabled", "");
+            bookTimeElm.append($('<option>', {
+                value: 0,
+                text: "All slots reserved"
+            }));
+        }
+            
+        $('.time-select').selectpicker('render');
+        $('.time-select').selectpicker('refresh');
+
         if (data.date) {
-            $("#bookDate" + clinicId).val(data.date);
+            bookDateElm.val(data.date);
         }
         $.hideprogress();
     });
@@ -547,19 +544,22 @@ function ValidateStep3(elm) {
 
 function ButtonStep3Click() {
     if (ValidateStep3()) {
-        
         SetStep(4);
     }
 }
 
 function enableConfirm() {
-    $("#cmdSelectDetails").removeAttr("disabled");
-    $("#cmdSelectDetails").prop("disabled", false);
+    var confirmBtn = $("#cmdSelectDetails");
+    confirmBtn.parent().show();
+    confirmBtn.removeAttr("disabled");
+    confirmBtn.prop("disabled", false);
 }
 
 function disableConfirm() {
-    $("#cmdSelectDetails").attr("disabled", "");
-    $("#cmdSelectDetails").prop("disabled", true);
+    var confirmBtn = $("#cmdSelectDetails");
+    confirmBtn.parent().hide();
+    confirmBtn.attr("disabled", "");
+    confirmBtn.prop("disabled", true);
 }
 
 
@@ -578,14 +578,11 @@ function restoreTimeMessage(clinicId) {
     $('.timeWarning' + clinicId).hide();
     $('.timeSuccess' + clinicId).hide();
     $('.timeFatalError' + clinicId).hide();
-    //enableConfirm();
 }
 
 function SetModalBookingTime(obj) {
     $("#step4DateAndTime").prop("time", $(obj).val());
     var dateTime = $("#step4DateAndTime").text($("#step4DateAndTime").prop("date") + ' ' + $("#step4DateAndTime").prop("time"));
-    disableConfirm();
-    //$.showprogress();
     $('.event-message').hide();
 
     var treatmentId = $('#treatmentId').val();
@@ -606,7 +603,6 @@ function SetModalBookingTime(obj) {
             .success(function (response) {
                 $.hideprogress();
                 enableConfirm();
-                //console.log(response);
                 switch (response.StatusId) {
                     case 1:
                     {
@@ -725,7 +721,6 @@ function SendBookingNotification() {
     var dateStr = $("#step4DateAndTime").prop("date");
     var time = $("#bookTime5").val();
     var clinicId = $('#clinicId').val();
-    // console.log("name:" + fName, "last name:" + lName, "email:" + email, "clinic:" + clinicId, "treatment:" + treatmentId, "date:" + dateStr, "time:" + time);
 
     $.ajax({
         type: "POST",

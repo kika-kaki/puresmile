@@ -2624,7 +2624,7 @@ footer {
 
 .booking-modal .text-input,
 .booking-modal .input-date,
-.booking-modal .time-select button {
+.booking-modal .time-select {
     width: 100%;
     height: 36px;
     -webkit-border-radius: 2px;
@@ -2643,6 +2643,16 @@ footer {
         border-color: #66afe9;
         outline: 0;
         box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+    }
+.booking-modal .time-select {
+    background: #fff;
+    padding: 0px 12px;
+}
+
+    .booking-modal .time-select button {
+        border: none;
+        background: transparent;
+        font-size: 14px;
     }
 
 .details-error, .payment-errors {
