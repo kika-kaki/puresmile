@@ -20,6 +20,8 @@ function hideClinicsExcept(clinic)
 
 function showAllClinics() {
     $('.jsClinics').show();
+    $('.time-message-cont').hide();
+    $('.date-select-box').hide();
     clinicsHidden = false;
 }
 

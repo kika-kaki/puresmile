@@ -2649,8 +2649,13 @@ footer {
     padding: 0px 12px;
 }
 
-    .booking-modal .time-select button {
+    .booking-modal .time-select button,
+    .booking-modal .time-select.open button,
+    .booking-modal .time-select.open button:hover,
+    .booking-modal .time-select.open button:active,
+    .booking-modal .time-select.open button:focus {
         border: none;
+        box-shadow: none;
         background: transparent;
         font-size: 14px;
     }
