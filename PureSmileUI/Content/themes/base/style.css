@@ -6,7 +6,7 @@
 body {
     font-size: 12px;
     line-height: 22px;
-    color: #666;
+    color: #747474;
     border-top: 3px solid #eee;
     /*background: #343434 url("../img/back.png") repeat;*/
     /*background: #185196;*/
@@ -58,11 +58,11 @@ p {
 }
 
 a {
-    color: #026b9c;
+    color: #0067a5;
 }
 
     a:hover {
-        color: #003f5c;
+        color: #00bfff;
         text-decoration: none;
     }
 
@@ -1996,7 +1996,6 @@ footer {
 /* Modal */
 .booking-modal {
     font-family: 'Open Sans', sans-serif;
-    color: #545c64;
     font-size: 14px;
 }
 
@@ -2294,16 +2293,20 @@ footer {
         }
 
     .booking-modal .treatments-list .treatment-description {
-        line-height: 1.385;
+        line-height: 1.5em;
         padding: 0 8px;
         width: 70%;
     }
 
         .booking-modal .treatments-list .treatment-description h5 {
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 1.375;
-            margin: 3px 0 5px;
+            font-size: 1.1em;
+            margin: 8px 0 10px;
+            font-family: Lato;
+            line-height: 1.375em;
+            color: #00a8e1;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
     .booking-modal .treatments-list .treatment-price {
@@ -3150,11 +3153,6 @@ footer {
     .booking-modal .treatments-list .treatment-description {
         width: 350px;
     }
-
-        .booking-modal .treatments-list .treatment-description h5 {
-            font-size: 17px;
-            margin: 11px 0 8px;
-        }
 
     .booking-modal .treatments-list .treatment-price {
         width: 112px;

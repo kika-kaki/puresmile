@@ -14,7 +14,14 @@ function setMainButtonsPosition() {
 
 function hideClinicsExcept(clinic)
 {
-    $('.jsClinics').each(function () { if ($(this)[0] != clinic) $(this).hide(); });
+    $('.jsClinics').each(function () {
+        console.log('HIDE CLINIC', $(this)[0], clinic);
+        if ($(this)[0] != clinic) {
+            $(this).hide();
+        } else {
+            $(this).find('.btn-treatment');
+        }
+    });
     clinicsHidden = true;
 }
 
