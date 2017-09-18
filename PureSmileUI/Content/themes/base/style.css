@@ -6,7 +6,7 @@
 body {
     font-size: 12px;
     line-height: 22px;
-    color: #666;
+    color: #747474;
     border-top: 3px solid #eee;
     /*background: #343434 url("../img/back.png") repeat;*/
     /*background: #185196;*/
@@ -58,11 +58,11 @@ p {
 }
 
 a {
-    color: #026b9c;
+    color: #0067a5;
 }
 
     a:hover {
-        color: #003f5c;
+        color: #00bfff;
         text-decoration: none;
     }
 
@@ -1996,7 +1996,6 @@ footer {
 /* Modal */
 .booking-modal {
     font-family: 'Open Sans', sans-serif;
-    color: #545c64;
     font-size: 14px;
 }
 
@@ -2143,6 +2142,7 @@ footer {
         position: fixed;
         width: 500px;
         z-index: 1060;
+        top: 65px;
     }
 
 .booking-search-box-replacer {
@@ -2294,16 +2294,20 @@ footer {
         }
 
     .booking-modal .treatments-list .treatment-description {
-        line-height: 1.385;
+        line-height: 1.5em;
         padding: 0 8px;
         width: 70%;
     }
 
         .booking-modal .treatments-list .treatment-description h5 {
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 1.375;
-            margin: 3px 0 5px;
+            font-size: 1.1em;
+            margin: 8px 0 10px;
+            font-family: Lato;
+            line-height: 1.375em;
+            color: #00a8e1;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
     .booking-modal .treatments-list .treatment-price {
@@ -2333,7 +2337,7 @@ footer {
     height: 36px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
-    border: solid 1px #1089ca;
+    border: solid 1px #1089cb;
     color: #fff;
     text-align: center;
     line-height: 1.375;
@@ -2342,13 +2346,14 @@ footer {
     text-transform: uppercase;
     padding: 9px 10px;
     background: #238ed0;
-    background: -moz-linear-gradient(top, #238ed0 0%, #1a79c3 100%);
-    background: -webkit-linear-gradient(top, #238ed0 0%, #1a79c3 100%);
-    background: linear-gradient(to bottom, #238ed0 0%, #1a79c3 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#238ed0', endColorstr='#1a79c3',GradientType=0 );
+    background: -moz-linear-gradient(top, #1da9de 0%, #0495d2 100%);
+    background: -webkit-linear-gradient(top, #1da9de 0%, #0495d2 100%);
+    background: linear-gradient(180deg, #1da9de 0%, #0495d2);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1da9de', endColorstr='#0495d2',GradientType=0 );
 }
 
-    .booking-modal .btn-treatment:active, .active-btn {
+    .booking-modal .btn-treatment:hover,
+    .booking-modal .btn-treatment:focus {
         background: #0189c6 !important;
         background: -moz-linear-gradient(top, #0189c6 0%, #223881 100%) !important;
         background: -webkit-linear-gradient(top, #0189c6 0%, #223881 100%) !important;
@@ -2416,8 +2421,16 @@ footer {
     list-style: none !important;
 }
 
+    .booking-modal .locations-list > form {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
     .booking-modal .locations-list li {
-        padding: 6px 5px;
+        padding: 5px 16px;
         border-bottom: solid 1px #e3e3e3;
     }
 
@@ -2493,18 +2506,6 @@ footer {
                     background: url("../img/icon-clock.svg") 0 0 no-repeat;
                 }
 
-                .booking-modal .locations-list li.date-select-box > div input, .booking-modal .locations-list li.date-select-box > div select {
-                    -webkit-border-radius: 2px;
-                    border-radius: 2px;
-                    background-color: #fff;
-                    border: 1px solid #dcdcdc;
-                    font-size: 12px;
-                    color: #545c64;
-                    height: 33px;
-                    width: 100%;
-                    padding: 8px 17px 8px 12px;
-                }
-
     .booking-modal .locations-list .location-map {
         width: 132px;
         height: 132px;
@@ -2515,7 +2516,7 @@ footer {
 
     .booking-modal .locations-list .location-description {
         overflow: hidden;
-        padding: 11px 6px 6px;
+        padding: 0px 6px 6px;
         font-size: 12px;
         line-height: 1.417;
     }
@@ -2523,10 +2524,14 @@ footer {
         .booking-modal .locations-list .location-description h5 {
             font-size: 14px;
             font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1.375;
+            color: #00a8e1;
             position: relative;
             margin: 0 0 4px;
-            line-height: 1.375;
             padding-right: 40px;
+            margin: 0 0 10px;
         }
 
             .booking-modal .locations-list .location-description h5 span {
@@ -2626,15 +2631,43 @@ footer {
     margin-bottom: 8px;
 }
 
-.booking-modal .text-input {
+.booking-modal .text-input,
+.booking-modal .input-date,
+.booking-modal .time-select {
     width: 100%;
-    height: 41px;
+    height: 36px;
     -webkit-border-radius: 2px;
-    border-radius: 2px;
-    border: 1px solid #dcdcdc;
+    border-radius: 16px;
+    border: 1px solid #9cb9d3;
     font-size: 14px;
-    padding: 11px 14px;
+    line-height: 1.42857143;
+    padding: 7px 12px;
+    color: #555;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
+
+    .booking-modal .text-input:focus,
+    .booking-modal .input-date:focus {
+        border-color: #66afe9;
+        outline: 0;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+    }
+.booking-modal .time-select {
+    background: #fff;
+    padding: 0px 12px;
+}
+
+    .booking-modal .time-select button,
+    .booking-modal .time-select.open button,
+    .booking-modal .time-select.open button:hover,
+    .booking-modal .time-select.open button:active,
+    .booking-modal .time-select.open button:focus {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        font-size: 14px;
+    }
 
 .details-error, .payment-errors {
     color: red;
@@ -2923,20 +2956,20 @@ footer {
     display: block;
     width: 100%;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 20px;
     line-height: 1.3846;
     color: #fff;
     font-weight: 600;
-    letter-spacing: 0.9px;
+    letter-spacing: 1.59px;
     padding: 16px;
-    border-color: #1089ca;
-    -webkit-border-radius: 6px;
-    border-radius: 6px;
-    background: #2699d9;
-    background: -moz-linear-gradient(top, #2699d9 0%, #1b76c0 100%);
+    border-color: #1089cb;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background: #00bfff;
+    /*background: -moz-linear-gradient(top, #2699d9 0%, #1b76c0 100%);
     background: -webkit-linear-gradient(top, #2699d9 0%, #1b76c0 100%);
     background: linear-gradient(to bottom, #2699d9 0%, #1b76c0 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2699d9', endColorstr='#1b76c0',GradientType=0 );
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2699d9', endColorstr='#1b76c0',GradientType=0 );*/
 }
 
     .booking-modal .modal-footer .btn-confirm[disabled] {
@@ -3064,7 +3097,7 @@ footer {
     .base-modal {
         display: block;
         width: 500px;
-        margin: 30px auto;
+        margin: 0px auto;
     }
 
     #treatmentModal {
@@ -3096,7 +3129,7 @@ footer {
     }*/
 
     .booking-modal .modal-content {
-        height: 700px; /*fix - height for pc*/
+        height: 100%; /*fix - height for pc*/
         padding-top: 0;
         padding-bottom: 0;
     }
@@ -3104,18 +3137,15 @@ footer {
     .booking-modal .modal-header,
     .booking-modal .modal-footer {
         position: fixed;
-        top: auto;
         left: auto;
-        bottom: auto;
         width: 500px;
     }
 
     .btn-confirm-div {
         position: fixed !important;
         left: auto;
-        bottom: 60px !important;
         width: 500px !important;
-        height: 63px;
+        height: 75px;
     }
 
 
@@ -3126,11 +3156,6 @@ footer {
     .booking-modal .treatments-list .treatment-description {
         width: 350px;
     }
-
-        .booking-modal .treatments-list .treatment-description h5 {
-            font-size: 17px;
-            margin: 11px 0 8px;
-        }
 
     .booking-modal .treatments-list .treatment-price {
         width: 112px;
